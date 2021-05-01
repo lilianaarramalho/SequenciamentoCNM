@@ -1,3 +1,7 @@
-from import_data import *
+
 from functions import *
 
+import_ovs()
+data_min()
+
+print('hello')

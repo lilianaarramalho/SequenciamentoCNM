@@ -1,6 +1,6 @@
 class of(object):
 
-    def __init__(self,id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider):
+    def __init__(self,id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2):
 
         self.id=id
         self.cod_of = cod_of
@@ -31,8 +31,8 @@ class of(object):
         self.origem=[]
         self.quantidade_origem=[]
         self.precedenciaBL="PL"
-        self.dim1=self.descricao_material[self.descricao_material.find("/")+4 : descricao_material.find("X")]
-        self.dim2=self.descricao_material[self.descricao_material.find(self.dim1)+5:self.descricao_material.find(self.dim1)+8]
+        self.dim1=dim1
+        self.dim2=dim2
         self.outsider=outsider
 
         if "BL" in self.descricao_precedencia:
@@ -40,8 +40,6 @@ class of(object):
                 self.precedenciaBL="metricas"
             else:
                 self.precedenciaBL="inglesas"
-
-
 
     def __repr__(self):
         return str(self.cod_of)

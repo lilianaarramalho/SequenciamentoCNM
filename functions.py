@@ -407,3 +407,195 @@ def definir_capacidades():
 
                 maquinas[index].adicionar_turno(slots[maquinas[index].vetor_slots[i]].id, capacidade)
 
+def verificar_outsider(df):
+
+    lista=[]
+
+    for index,row in df.iterrows():
+        componente=row['Componente']
+        df_componente=df[(df['Material']==componente) & (df['Centro trabalho']=='CNMSERPL')]
+        if df_componente.empty==False:
+            lista.append(row['Ordem'])
+
+    return lista
+
+def first_row_as_headers(df):
+
+    new_header = df.iloc[0] #grab the first row for the header
+    df = df[1:] #take the data less the header row
+    df.columns = new_header #set the header row as the df header
+
+    return df
+
+def data_min():
+
+    global df_bruto
+
+    df = pd.read_csv('data/10. stock mes.csv', sep=";", encoding="UTF-8")
+    df = first_row_as_headers(df)
+    df = df.dropna()
+    df['dia'] = df['Lot'].str[4:6]
+    df['mes'] = df['Lot'].str[6:8]
+    df['ano'] = df['Lot'].str[8:]
+    df['data'] = df['dia'] + "/" + df['mes'] + "/" + df['ano']
+    df = df[df['MaterialName'].str.contains("BL CC").fillna(False)]
+    df = df[df['Lot'].str.contains("AGB").fillna(False)]
+    df = df[~df['data'].str.contains("[a-zA-Z]").fillna(False)]
+
+    df['data'] = pd.to_datetime(df['data'], dayfirst=True, errors='coerce')
+
+    df = df[['MaterialKey', 'Total', 'MaterialName', 'data']]
+    df['Total'] = df['Total'].astype(int)
+    df['MaterialKey'] = df['MaterialKey'].astype(int)
+    df['acabamento'] = df['MaterialName'].str.split(' ').str[3]
+    df = df[df['acabamento'] == '000']
+    df['MaterialName'] = df['MaterialName'].str.upper()
+    df['dim'] = df['MaterialName'].str.split(' ').str[4]
+    df['dim'] = df['dim'].str.split('X').str[0]
+    df['dim'] = df['dim'].astype(int)
+    df = df[df['dim'] >= 930]
+    df['material']=df['MaterialName'].str.split(' ').str[2]
+    df['material']=df['material'].astype(int)
+
+    # adicionar tempo de estabilização
+
+    df_est=pd.read_csv('data/11. tempo estabilizacao.csv',sep=",",encoding='UTF-8')
+
+    df=df.merge(df_est,on="material",how="left")
+
+    df['data'] = df.apply(lambda row: row['data'] + pd.DateOffset(days=row['dias']),axis=1)
+
+    df = df.groupby(['MaterialKey', 'data']).sum() \
+        .groupby(level=0).cumsum().reset_index()
+
+    print(df[df['MaterialKey']==70001631])
+
+    df = df.reset_index()
+
+    df_bruto=df.copy()
+
+    return df_bruto
+
+def calcular_data_bruto(row):
+
+    global df_bruto
+
+    componente = row['Componente']
+    if componente==70001631:
+        print('componente')
+    quantidade = row['Qtd. componente']
+    df_componente = df_bruto[(df_bruto['MaterialKey'] == componente) & (df_bruto['Total'] >= quantidade)]
+    df_data = df_bruto[df_bruto['MaterialKey'] == componente]
+
+    if row['Ordem']==1600059821:
+        print('hello')
+    if df_componente.empty == False:
+        linha = df_componente.iloc[0]
+        data = linha['data']
+        df_bruto['Total'] = df_bruto.apply(lambda x: x['Total']-quantidade if x['MaterialKey'] == componente else x['Total'], axis=1)
+        return data
+    elif df_componente.empty==True and df_data.empty==False:
+        data=datetime.datetime.now()+datetime.timedelta(days=7)
+        return data
+    else:
+        return datetime.datetime.now()
+
+def atualizar_data(row):
+
+    if row['data_min_prec']<=0:
+        return 0
+    else:
+        return row['data_min_prec']
+
+def import_ovs():
+    data_min()
+    global df_bruto
+
+    df_ofs=pd.read_csv('data/08. ofs.csv',encoding='UTF-8',sep=";")
+    df_ofs=df_ofs.fillna(0)
+    df_ofs['Ordem'] = df_ofs['Ordem'].astype(int)
+    df_ofs['Qtd.teórica']=df_ofs['Qtd.teórica'].astype(float)
+
+    # verificar cliente final - Assumimos CCS quando não tem OV.
+
+    df_ovs = pd.read_csv('data/09. cliente_final.csv', encoding='UTF-8', sep=";")
+    df_ovs = df_ovs[['Ordem', 'Planeador', 'Ordem Venda / Transf', 'Componente']]
+    df_mto=df_ovs.copy()
+    df_mto=df_mto[['Ordem Venda / Transf','Planeador']]
+    df_mto=df_mto.dropna()
+    df_mto=df_mto.drop_duplicates()
+    df_ofs=df_ofs.merge(df_mto,left_on="Ordem Venda / Transf",right_on="Ordem Venda / Transf",how='left')
+    df_ofs=df_ofs.sort_values(by='Ordem Venda / Transf')
+    df_ofs['Planeador']=df_ofs['Planeador'].fillna('CCS')
+    df_ofs.loc[(df_ofs.Planeador != 'CCS'),'Planeador']='Ext'
+
+    # filtrar centros de trabalho
+
+    lista=['CNMRETBL','CNMSERPL','CNMLAMLX','CNMLAMPL']
+    df_ofs=df_ofs[df_ofs['Centro trabalho'].isin(lista)]
+
+    #para ver as que já foram concluídas e quantidade declarada
+
+    df_cubo=pd.read_csv('data/07. cubo mes.csv',encoding='UTF-8',sep=";")
+    df_cubo = df_cubo.iloc[3:]
+    new_header = df_cubo.iloc[0]
+    df_cubo = df_cubo[1:]
+    df_cubo.columns = new_header
+    df_cubo=df_cubo[['OrderName','OrderOperationStatus','Total']]
+    df_cubo['order_name']=df_cubo['OrderName'].str.split('.').str[1]
+    df_cubo = df_cubo.fillna(0)
+    df_cubo['order_name'] = df_cubo['order_name'].astype(int)
+    df_cubo['Total']=df_cubo['Total'].astype(float)
+
+    df_ofs=df_ofs.merge(df_cubo,left_on="Ordem",right_on="order_name",how="left")
+    df_ofs=df_ofs[df_ofs['OrderOperationStatus']!='Encerada']
+    df_ofs['Total']=df_ofs['Total'].fillna(0)
+    df_ofs['quantidade']=df_ofs['Qtd.teórica']-df_ofs['Total']
+    df_ofs['quantidade precedencia']=df_ofs['quantidade']/df_ofs['Qtd.teórica']*df_ofs['Qtd. componente']
+    df_ofs['minutos'] = df_ofs['quantidade'] / df_ofs['Qtd.teórica'] * df_ofs['Capacidade Alocada']*60
+    df_ofs=df_ofs[df_ofs['quantidade']>1]
+
+    df_ofs['acabamento'] = df_ofs['Denominação'].str.split('/').str[-1]
+    df_ofs['acabamento'] = df_ofs['acabamento'].str.split(' ').str[0]
+
+    df_ofs['Material'] = df_ofs['Material'].astype(int)
+    df_ofs['Componente'] = df_ofs['Componente'].astype(int)
+
+    df_ofs['outsider']=0
+
+    lista=verificar_outsider(df_ofs)
+    df_ofs.loc[df_ofs.Ordem.isin(lista), 'outsider'] = 1
+
+    #verificar data minima de cada of tendo em conta o precedente e a quantidade necessária.
+    df_ofs['data_min_prec']=df_ofs.apply(lambda row: calcular_data_bruto(row),axis=1)
+    df_ofs['data_min_prec'] = df_ofs.apply(lambda row: pd.Timedelta(row['data_min_prec'] - datetime.datetime.now()).total_seconds() / 60, axis=1)
+    df_ofs['data_min_prec']=df_ofs.apply(lambda row: atualizar_data(row),axis=1)
+
+    df_ofs['material']=df_ofs['Denominação'].str.split('/').str[0]
+    df_ofs['material']=df_ofs['material'].str[-4:]
+
+    df_ofs['Denominação']=df_ofs['Denominação'].str.upper()
+
+    df_ofs['dim1']=df_ofs['Denominação'].str.split('X').str[0]
+    df_ofs['dim1']=df_ofs['dim1'].str.split('/').str[1]
+    df_ofs['dim1'] = df_ofs['dim1'].str[4:]
+    df_ofs['dim1']=df_ofs['dim1'].astype(int)
+
+    df_ofs['dim2']=df_ofs['Denominação'].str.split('X').str[1]
+    df_ofs['dim2']=df_ofs['dim2'].str.split(' ').str[0]
+    df_ofs['dim2'] = df_ofs['dim2'].astype(int)
+
+    df_ofs['dim3']=df_ofs['Denominação'].str.split('X').str[2]
+    df_ofs['dim3'] = df_ofs['dim3'].str.split(' ').str[0]
+
+    return df_ofs
+
+
+
+
+
+
+
+
+
+
