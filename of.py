@@ -1,6 +1,6 @@
 class of(object):
 
-    def __init__(self,id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2):
+    def __init__(self,id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2,precedenciaBL,data_min_prec):
 
         self.id=id
         self.cod_of = cod_of
@@ -16,9 +16,9 @@ class of(object):
         self.data_inicio=15
         self.id_slot_inicio_turno=-1
         self.data_fim=-1
-        self.id_alocada=0
+        self.id_alocada=-1
         self.vetor_maquinas=[]
-        self.data_min=99999
+        self.data_min=data_min_prec
         self.pronta_a_iniciar=0
         self.delta=prioridade
         self.id_precedencia=-1
@@ -28,29 +28,19 @@ class of(object):
         self.codigo_precedencia=codigo_precedencia
         self.descricao_precedencia=descricao_precedencia
         self.data=data
-        self.origem=[]
-        self.quantidade_origem=[]
-        self.precedenciaBL="PL"
+        self.precedenciaBL=precedenciaBL
         self.dim1=dim1
         self.dim2=dim2
         self.outsider=outsider
 
-        if "BL" in self.descricao_precedencia:
-            if int(self.dim1)>=1000:
-                self.precedenciaBL="metricas"
-            else:
-                self.precedenciaBL="inglesas"
+        self.id_grupos=[]
+        self.quantidade_grupos=[]
+
+        self.id_of=[]
+        self.quantidade_of=[]
 
     def __repr__(self):
         return str(self.cod_of)
 
     def adicionar_maquinas(self,maquinas):
         self.vetor_maquinas=maquinas
-
-    def adicionar_produto(self,data_prioridade,data_entrega):
-        self.vetor_data_min.append(data_prioridade)
-        self.vetor_data_entrega.append(data_entrega)
-
-    def update_data_min(self):
-
-        self.data_min=15

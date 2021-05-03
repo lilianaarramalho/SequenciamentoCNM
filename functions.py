@@ -73,16 +73,12 @@ def criar_slots(df,df_paragens,maquina_atual):
         fim_turno=hora_fim[index]
         count_mesmo_turno=0
 
-        print(fim_turno.hour)
         for i in range(len(inicio)):
 
             inicio_paragem=inicio[i]
             fim_paragem=fim[i]
 
             str_data=datetime.datetime.strptime('22:00','%H:%M')
-
-            if str(inicio_turno)=="22:00:00":
-                print('degbu')
 
 
             if inicio_paragem>=inicio_turno and fim_paragem<=fim_turno:
@@ -468,8 +464,6 @@ def data_min():
     df = df.groupby(['MaterialKey', 'data']).sum() \
         .groupby(level=0).cumsum().reset_index()
 
-    print(df[df['MaterialKey']==70001631])
-
     df = df.reset_index()
 
     df_bruto=df.copy()
@@ -481,14 +475,10 @@ def calcular_data_bruto(row):
     global df_bruto
 
     componente = row['Componente']
-    if componente==70001631:
-        print('componente')
     quantidade = row['Qtd. componente']
     df_componente = df_bruto[(df_bruto['MaterialKey'] == componente) & (df_bruto['Total'] >= quantidade)]
     df_data = df_bruto[df_bruto['MaterialKey'] == componente]
 
-    if row['Ordem']==1600059821:
-        print('hello')
     if df_componente.empty == False:
         linha = df_componente.iloc[0]
         data = linha['data']
@@ -507,6 +497,16 @@ def atualizar_data(row):
     else:
         return row['data_min_prec']
 
+def calcular_bl(row):
+
+    if row['Centro trabalho']=='CNMLAMPL' or row['Centro trabalho']=='CNMLAMLX':
+        if row['dim1']>=1000:
+            return "metricas"
+        else:
+            return "inglesas"
+    else:
+        return "PL"
+
 def import_ovs():
     data_min()
     global df_bruto
@@ -524,10 +524,12 @@ def import_ovs():
     df_mto=df_mto[['Ordem Venda / Transf','Planeador']]
     df_mto=df_mto.dropna()
     df_mto=df_mto.drop_duplicates()
+    df_mto=df_mto.sort_values(by='Planeador')
     df_ofs=df_ofs.merge(df_mto,left_on="Ordem Venda / Transf",right_on="Ordem Venda / Transf",how='left')
     df_ofs=df_ofs.sort_values(by='Ordem Venda / Transf')
     df_ofs['Planeador']=df_ofs['Planeador'].fillna('CCS')
     df_ofs.loc[(df_ofs.Planeador != 'CCS'),'Planeador']='Ext'
+    df_ofs=df_ofs.drop_duplicates(['Ordem'], keep="first")
 
     # filtrar centros de trabalho
 
@@ -553,7 +555,10 @@ def import_ovs():
     df_ofs['quantidade']=df_ofs['Qtd.teórica']-df_ofs['Total']
     df_ofs['quantidade precedencia']=df_ofs['quantidade']/df_ofs['Qtd.teórica']*df_ofs['Qtd. componente']
     df_ofs['minutos'] = df_ofs['quantidade'] / df_ofs['Qtd.teórica'] * df_ofs['Capacidade Alocada']*60
+    df_por_fechar=df_ofs[df_ofs['quantidade']<=1]
+    df_por_fechar.to_csv('data/14. ordens por encerrar.csv', index=False)
     df_ofs=df_ofs[df_ofs['quantidade']>1]
+    df_ofs=df_ofs.sort_values(by='Semana')
 
     df_ofs['acabamento'] = df_ofs['Denominação'].str.split('/').str[-1]
     df_ofs['acabamento'] = df_ofs['acabamento'].str.split(' ').str[0]
@@ -588,7 +593,614 @@ def import_ovs():
     df_ofs['dim3']=df_ofs['Denominação'].str.split('X').str[2]
     df_ofs['dim3'] = df_ofs['dim3'].str.split(' ').str[0]
 
+    df_ofs['precedenciaBl']=df_ofs.apply(lambda row: calcular_bl(row),axis=1)
+
     return df_ofs
+
+def calcular_prioridade(semana):
+
+    semana_atual=datetime.datetime.now().isocalendar()[1]
+    return semana-semana_atual
+
+def import_ofs():
+
+    global ofs
+    global maquinas
+
+    ofs=[]
+
+    df_ofs=import_ovs()
+    df_acabamentos=importar_acabamentos()
+
+
+    for index,row in df_ofs.iterrows():
+
+
+
+        #id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2,precedenciaBL)
+        cod_of=row['Ordem']
+        minutos=row['minutos']
+        quantidade=row['quantidade']
+        codigo_material=row['Material']
+        descricao_material=row['Denominação']
+        material=row['material']
+        bl=row['dim3']
+        acabamento=row['acabamento']
+        ct=row['Centro trabalho']
+        prioridade=calcular_prioridade(row['Semana'])
+        estado=0
+        quantidade_precedencia=row['Qtd. componente']
+        codigo_precedencia=row['Componente']
+        descricao_precedencia=row['Denominação componente']
+        data=row['Semana']
+        outsider=row['outsider']
+        dim1=row['dim1']
+        dim2=row['dim2']
+        precedenciaBL=row['precedenciaBl']
+        data_min=row['data_min_prec']
+
+        #todo adicionar estado em produção - pedir à ana ligeiro para adicionar maquina
+
+        new_of=of(index, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2,precedenciaBL,data_min)
+        ofs.append(new_of)
+
+        id_maquinas=[]
+
+        if ct=="CNMLAMPL":
+            lista_maquinas = df_acabamentos[(df_acabamentos['ACABAMENTO']==acabamento) & (df_acabamentos['VALUE']==1)]
+            lista_maquinas=lista_maquinas['MAQUINA'].tolist()
+            for j in range(len(lista_maquinas)):
+                for i in range(len(maquinas)):
+                    if maquinas[i].nome==lista_maquinas[j]:
+                        id_maquinas.append(i)
+        else:
+            for i in range(len(maquinas)):
+                if maquinas[i].nome == ct:
+                    id_maquinas.append(i)
+
+        new_of.vetor_maquinas = id_maquinas
+
+    return ofs
+
+def import_stocks():
+
+    global materialkey
+    global stock
+    materialkey = []
+    stock=[]
+
+    df_stocks = pd.read_csv('data/10. stock mes.csv', sep=";",error_bad_lines=False)
+    df_stocks=df_stocks.dropna()
+    df_stocks= df_stocks.iloc[1:]
+    df_stocks = df_stocks.rename(columns={'Sum Quantity': 'MaterialKey', 'Unnamed: 3': 'Total'}, inplace=False)
+
+    print(df_stocks)
+    df_stocks['MaterialKey'] = df_stocks['MaterialKey'].astype(int)
+    df_stocks['Total'] = df_stocks['Total'].astype(float)
+    df_stocks = df_stocks.groupby(['MaterialKey'])[["Total"]].sum()
+
+    count_refs = 0
+
+    for name, group in df_stocks.iterrows():
+        materialkey.append(name)
+
+        stock.append(group[0])
+
+        count_refs += 1
+
+
+    return materialkey,stock
+
+def get_ids(lista):
+
+    ids=[]
+
+    for index in range(len(lista)):
+        ids.append(index)
+
+    return ids
+
+def sort_delta(ids,vetor):
+
+    ids.sort(key=lambda x: (vetor[x].estado,vetor[x].delta,vetor[x].descricao_material,vetor[x].quantidade) , reverse=False)
+
+def get_limite(precedenciaBL):
+
+    limite=0
+
+    if precedenciaBL == "metricas":
+        limite = 15
+    elif precedenciaBL == 'inglesas':
+        limite = 12
+
+    return limite
+
+def criar_grupo(id,quantidade):
+
+    global grupos
+    global ofs
+
+    cod_of = ofs[id].cod_of
+    minutos = quantidade/ofs[id].quantidade*ofs[id].t_producao
+    codigo_material = ofs[id].codigo_material
+    descricao_material = ofs[id].descricao_material
+    material = ofs[id].material
+    bl = ofs[id].bl
+    acabamento = ofs[id].acabamento
+    ct = ofs[id].ct
+    prioridade = ofs[id].prioridade
+    estado = 0
+    quantidade_precedencia = math.ceil(quantidade/ofs[id].quantidade*ofs[id].quantidade_precedencia)
+    codigo_precedencia = ofs[id].codigo_precedencia
+    descricao_precedencia = ofs[id].descricao_precedencia
+    data = ofs[id].data
+    outsider = ofs[id].outsider
+    dim1 = ofs[id].dim1
+    dim2 = ofs[id].dim2
+    data_min=ofs[id].data_min
+    precedenciaBL = ofs[id].precedenciaBL
+    index=len(grupos)
+
+    new_grupo=of(index, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2,precedenciaBL,data_min)
+    grupos.append(new_grupo)
+
+    ofs[id].id_grupos.append(index)
+    ofs[id].quantidade_grupos.append(quantidade)
+
+    new_grupo.id_of.append(id)
+    new_grupo.quantidade_of.append(quantidade)
+    new_grupo.vetor_maquinas=ofs[id].vetor_maquinas
+
+    for index in range(len(ofs[id].id_sucedencias)):
+        new_grupo.append(ofs[id].id_sucedencias[index])
+
+def get_match_ids(lista,match):
+    result = []
+    for i, x in enumerate(lista):
+        if x==match:
+            result.append(i)
+    return result
+
+def update_grupo(id,quantidade,id_grupo):
+
+    global grupos
+    global ofs
+
+    grupos[id_grupo].quantidade+=quantidade
+    grupos[id_grupo].t_producao+=quantidade/ofs[id].quantidade*ofs[id].t_producao
+    grupos[id_grupo].quantidade_precedencia+=quantidade/ofs[id].quantidade*ofs[id].quantidade_precedencia
+
+    ofs[id].id_grupos.append(id_grupo)
+    ofs[id].quantidade_grupos.append(quantidade)
+
+    grupos[id_grupo].id_of.append(id)
+    grupos[id_grupo].quantidade_of.append(quantidade)
+
+    if len(ofs[id].vetor_maquinas)<len(grupos[id_grupo].vetor_maquinas):
+        grupos[id_grupo].vetor_maquinas=ofs[id].vetor_maquinas
+
+    if ofs[id].delta<grupos[id_grupo].delta:
+        grupos[id_grupo].delta=ofs[id].delta
+
+    if ofs[id].data_min>grupos[id_grupo].data_min:
+        grupos[id_grupo].data_min=ofs[id].data_min
+
+    for index in range(len(ofs[id].id_sucedencias)):
+        grupos[id_grupo].append(ofs[id].id_sucedencias[index])
+
+def alocar_lista_de_grupos(id_of, quantidade_of, blocos, limite,new_descricao):
+
+    global grupos
+    global ofs
+
+    descricao=[]
+    quantidade=[]
+
+    n_ofs = blocos // limite
+    quantidade_grupo = quantidade_of * limite / blocos
+    blocos_remanescentes = blocos - n_ofs * limite
+    quantidade_remanescente = quantidade_of * blocos_remanescentes / blocos
+
+    for i in range(n_ofs):
+        criar_grupo(id_of, quantidade_grupo)
+        descricao.append(new_descricao)
+        quantidade_bl = limite
+        quantidade.append(quantidade_bl)
+
+    if quantidade_remanescente > 1:
+        criar_grupo(id_of, quantidade_remanescente)
+        descricao.append(new_descricao)
+        quantidade_bl = blocos_remanescentes
+        quantidade.append(quantidade_bl)
+
+    return descricao,quantidade
+
+def group_material_dim(ids,ct):
+
+    global ofs
+    global maquinas
+    global grupos
+
+    ids_ct=[]
+    descricao=[]
+    quantidade=[]
+
+    for index in range(len(ids)):
+        id=ids[index]
+        if ofs[id].ct==ct:
+            ids_ct.append(id)
+
+    for index in range(len(ids_ct)):
+        id=ids_ct[index]
+        new_descricao=str(ofs[id].material) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
+        blocos=math.ceil(ofs[id].quantidade_precedencia)
+        limite=get_limite(ofs[id].precedenciaBL)
+        quantidade_of=ofs[id].quantidade
+        if new_descricao in descricao:
+            ids_grupos=get_match_ids(descricao,new_descricao)
+            count=0
+            while blocos>0 and count<len(ids_grupos):
+                id_grupo=ids_grupos[count]
+                quantidade_utilizada=quantidade[id_grupo]
+                if quantidade_utilizada+blocos<=limite:
+                    update_grupo(id,quantidade_of,id_grupo)
+                    blocos=0
+                elif quantidade_utilizada<limite:
+                    restante=limite-quantidade_utilizada
+                    restante_of=restante/math.ceil(ofs[id].quantidade_precedencia)*ofs[id].quantidade
+                    update_grupo(id, restante_of,id_grupo)
+                    blocos=blocos-restante
+                count+=1
+            if blocos>0:
+                quantidade_of=blocos/math.ceil(ofs[id].quantidade_precedencia)*ofs[id].quantidade
+                descricao_toappend,quantidade_toappend=alocar_lista_de_grupos(id, quantidade_of, blocos, limite,new_descricao)
+                for i in range(len(descricao_toappend)):
+                    descricao.append(descricao_toappend[i])
+                    quantidade.append(quantidade_toappend[i])
+        else:
+            descricao_toappend, quantidade_toappend = alocar_lista_de_grupos(id, quantidade_of, blocos, limite,
+                                                                             new_descricao)
+            for i in range(len(descricao_toappend)):
+                descricao.append(descricao_toappend[i])
+                quantidade.append(quantidade_toappend[i])
+
+    return grupos
+
+def group_material(ids,ct):
+
+    global ofs
+    global maquinas
+    global grupos
+
+    ids_ct = []
+    descricao = []
+    quantidade = []
+
+    for index in range(len(ids)):
+        id = ids[index]
+        if ofs[id].ct == ct:
+            ids_ct.append(id)
+
+    for index in range(len(ids_ct)):
+        id = ids_ct[index]
+        new_descricao = str(ofs[id].material)
+        blocos = math.ceil(ofs[id].quantidade_precedencia)
+        limite = get_limite(ofs[id].precedenciaBL)
+        quantidade_of = ofs[id].quantidade
+        if new_descricao in descricao:
+            id_grupo = descricao.index(new_descricao)
+            update_grupo(id, quantidade_of, id_grupo)
+        else:
+            criar_grupo(id,quantidade_of)
+
+    return grupos
+
+def criar_total_grupos(id_ofs):
+
+    global grupos
+    global ofs
+
+    grupos=[]
+    group_material_dim(id_ofs, "CNMLAMPL")
+    group_material_dim(id_ofs, "CNMLAMLX")
+    group_material(id_ofs, "CNMSERPL")
+    group_material(id_ofs, "CNMRETBL")
+
+    return grupos
+
+def verificar_precedencias(vetor):
+
+    n_impossivel=0
+    impossivel=False
+    por_planear=[]
+
+    for id in range(len(vetor)):
+        of=vetor[id].cod_of
+
+        if vetor[id].id_precedencia==-1:
+            codigo_precedencia=vetor[id].codigo_precedencia
+            descricao_precedencia=vetor[id].descricao_precedencia
+            if descricao_precedencia[:2]=="BL" and codigo_precedencia in materialkey:
+                id_material=materialkey.index(codigo_precedencia)
+                quantidade_material=vetor[id].quantidade_precedencia
+                stock_material=stock[id_material]
+                if stock_material>=quantidade_material:
+                    vetor[id].id_precedencia=-1
+                    stock[id_material]=stock[id_material]-quantidade_material
+                    stock_material=stock[id_material]
+                    vetor[id].pronta_a_iniciar = 1
+                elif "/000" in descricao_precedencia:
+                    vetor[id].pronta_a_iniciar=0
+                    n_impossivel += 1
+
+                elif "/ORT" in descricao_precedencia:
+                    encontrei=False
+                    id_precedencia=0
+                    while encontrei==False and id_precedencia<len(vetor):
+                        if vetor[id].codigo_precedencia==vetor[id_precedencia].codigo_material and vetor[id_precedencia].quantidade + stock[id_material]>=vetor[id].quantidade_precedencia :
+                            vetor[id].id_precedencia=id_precedencia
+                            vetor[id_precedencia].id_sucedencias.append(id)
+                            if vetor[id_precedencia].delta>vetor[id].delta:
+                                vetor[id_precedencia].delta=vetor[id].delta
+                            encontrei=True
+                        else:
+                            id_precedencia+=1
+
+                    if encontrei==False:
+                        vetor[id].pronta_a_iniciar = 0
+                        n_impossivel += 1
+
+            elif "/000" in descricao_precedencia:
+                vetor[id].pronta_a_iniciar = 0
+                n_impossivel+=1
+
+            elif "/ORT" or "PL CC" in descricao_precedencia:
+                encontrei = False
+                id_precedencia = 0
+                while encontrei == False and id_precedencia < len(vetor):
+                    if vetor[id].codigo_precedencia == vetor[id_precedencia].codigo_material:
+                        vetor[id].id_precedencia = id_precedencia
+                        vetor[id_precedencia].id_sucedencias.append(id)
+                        encontrei = True
+                    else:
+                        id_precedencia += 1
+                if encontrei==False:
+                    n_impossivel += 1
+
+    return n_impossivel
+
+def calcular_ofs_prontas(vetor):
+
+    lista=[]
+
+    for index in range(len(vetor)):
+        if vetor[index].pronta_a_iniciar==1 and vetor[index].id_slot_inicio_turno==-1:
+            lista.append(index)
+
+    return lista
+
+def definir_turno_min(vetor_maquinas):
+
+    global maquinas
+
+    id_inicio_turno=-1
+    minimo_global=999999999
+    id=-1
+
+    #print('numero de maquinas' + str(len(vetor_maquinas)))
+
+    for id_maquina in range(len(vetor_maquinas)):
+        if maquinas[vetor_maquinas[id_maquina]].nome=='CNMLAM03' and len(vetor_maquinas)==2:
+            min_data_maquina=maquinas[vetor_maquinas[id_maquina]].min_alocada+8*60
+        else:
+            min_data_maquina = maquinas[vetor_maquinas[id_maquina]].min_alocada
+        #print('data minima na maquina ' + str(maquinas[vetor_maquinas[id_maquina]].nome) + ' é ' + str(min_data) + ' com n slots ' + str(len(maquinas[vetor_maquinas[id_maquina]].id_slot_inicio_turno)))
+        for index in range(len(maquinas[vetor_maquinas[id_maquina]].id_slot_inicio_turno)):
+            inicio_slot=slots[maquinas[vetor_maquinas[id_maquina]].id_slot_inicio_turno[index]].inicio
+            capacidade_turno=maquinas[vetor_maquinas[id_maquina]].vetor_capacidade[index]
+            if (min_data_maquina>=inicio_slot and capacidade_turno>0 and min_data_maquina<minimo_global) or (min_data_maquina<=inicio_slot and capacidade_turno>0 and min_data_maquina<minimo_global):
+                id_inicio_turno=index
+                id=vetor_maquinas[id_maquina]
+                minimo_global=min_data_maquina
+
+    return minimo_global,id_inicio_turno,id
+
+def data_min_outsider(current_of):
+
+    new_min=0
+
+    start_hour=datetime.datetime.now()
+
+    if start_hour.hour<20 and start_hour.hour>6 and current_of.outsider==1:
+        start_hour=start_hour.replace(hour=22,minute=0)
+        new_min=(start_hour - datetime.now()).total_seconds() / 60.0
+
+    return new_min
+
+def calcular_data_fim_maquina(t_start,tempo_teorico, id_maquina):
+
+    # Percorrer as slots e determinar o momento final (não considerar ocupação)
+    maq = maquinas[id_maquina]
+
+    # Calculo tempo a alocar= setup da máquina + tempo produtivo
+    tempo_alocar = tempo_teorico
+    print('tempo a alocar na função: ' + str(tempo_teorico))
+    if tempo_teorico==266.6123908553798:
+        print('debug')
+
+    n_slots = len(maq.vetor_slots)-1
+    t_finish = t_start
+    tempo_em_falta = tempo_alocar
+    index = 0
+    # print('MÁQUINA QUE ESTÁ A MERDAR ' + str(id_maquina))
+    # Percorrer as várias slots at++e determinar o momento final
+
+    while index <= n_slots and tempo_em_falta > 0:
+        # print('index ' + str(index))
+
+        slot = slots[maq.vetor_slots[index]]
+
+        s_slot = slot.inicio
+
+        #print('inicio da slot a analisar: ' + str(s_slot))
+        f_slot = slot.fim
+
+        # Se for Slot Inicial
+        if t_start >= s_slot and t_start <= f_slot:
+
+            if f_slot - t_start >= tempo_em_falta:
+                t_finish = t_start + tempo_em_falta
+                tempo_em_falta = 0
+
+                #capacidades.append(nova_linha)
+
+            else:
+                tempo_em_falta=tempo_em_falta - (f_slot - t_start)
+
+
+        elif t_start <= s_slot:
+
+            if f_slot - s_slot >= tempo_em_falta:  # Se o restante couber na slot
+                t_finish = s_slot + tempo_em_falta
+                tempo_em_falta = 0
+
+            else:
+                tempo_em_falta = tempo_em_falta - (f_slot - s_slot)
+
+        # Incremento
+
+        index += 1
+
+    if t_finish > 0:
+        return t_finish
+    else:
+        print("Erro ao calcular calculo_finish_from_start")
+        return -1
+
+def update_delta(id_of,id_grupo):
+
+    grupos[id_of].data_min = grupos[id_grupo].data_fim
+
+    grupos[id_of].pronta_a_iniciar=1
+
+def update_capacidade(remanescente,turno,max_turno,id_maquina):
+
+    global maquinas
+
+    while remanescente > 0 and turno < max_turno:  # transformar em função
+
+        if maquinas[id_maquina].vetor_capacidade[turno] != 0:
+
+            print(maquinas[id_maquina].vetor_capacidade[turno])
+
+            remanescente = maquinas[id_maquina].diminuir_capacidade(turno, remanescente)
+
+            if maquinas[id_maquina].vetor_capacidade[turno] == 0:
+                print('esgotei o turno' + str(turno))
+                if turno==11:
+                    print('debug')
+                turno += 1
+        else:
+            turno+=1
+
+    return remanescente
+
+def gerar_output_final(method):
+
+    global ofs
+    global grupos
+
+    por_planear = []
+    planeado = []
+
+    if method==1: #grupos
+
+        for index in range(len(ofs)):
+
+            ids=ofs[index].id_grupos
+
+            for id in range(len(ids)):
+
+                id_groupby = ofs[index].id_grupos[id]
+
+                if grupos[id_groupby].id_slot_inicio_turno == -1:
+
+                    row_to_plan = {'semana': ofs[index].data, 'of': ofs[index].cod_of,
+                                   'descricao material': ofs[index].descricao_material,
+                                   'descricao consumo': ofs[index].descricao_precedencia,'ct':ofs[index].ct}
+
+                    por_planear.append(row_to_plan)
+
+                else:
+
+                    min=(ofs[index].quantidade_grupos[id]/ofs[index].quantidade)*ofs[index].t_producao
+                    quantidade=ofs[index].quantidade_grupos[id]/ofs[index].quantidade*ofs[index].quantidade
+
+                    duracao=datetime.timedelta(minutes=min)
+                    duracao=str(duracao)
+
+                    #sec = duracao.total_seconds()
+                    #hours = sec // 3600
+                    #minutes = (sec // 60) - (hours * 60)
+                    #duracao=str(hours)+':'+str(minutes)
+
+                    if grupos[id_groupby].id_precedencia!=-1:
+                        precedencia=grupos[grupos[id_groupby].id_precedencia]
+                        fim_precedencia=datetime.datetime.now() + datetime.timedelta(minutes=precedencia.data_fim)
+                    else:
+                        fim_precedencia=datetime.datetime.now()+datetime.timedelta(minutes=grupos[id_groupby].data_min)
+
+                    new_row = {'semana':ofs[index].data,'Máquina': maquinas[grupos[id_groupby].id_alocada].nome,'OF': ofs[index].cod_of,
+                               'Início': datetime.datetime.now() + datetime.timedelta(minutes=grupos[id_groupby].data_inicio),'Duração':duracao,'Quantidade': quantidade,
+                               'Descrição Material': ofs[index].descricao_material,'consumo blocos':grupos[id_groupby].quantidade_precedencia,'grupo':id_groupby,'data fim precedencia':fim_precedencia}
+
+                    planeado.append(new_row)
+    else:
+        for index in range(len(grupos)):
+
+            for codigo in range(len(grupos[index].partidas)):
+
+                for i in range(len(ofs)):
+
+                    if ofs[i].cod_of==grupos[index].partidas[codigo]:
+
+                        if grupos[index].id_slot_inicio_turno == -1:
+
+                            row_to_plan = {'semana': ofs[i].data.isocalendar()[1], 'of': ofs[i].cod_of,
+                                           'descricao material': ofs[i].descricao_material,
+                                           'descricao consumo': ofs[i].descricao_precedencia,'ct':ofs[i].ct}
+
+                            por_planear.append(row_to_plan)
+
+                        else:
+
+                            min = 1
+                            quantidade =grupos[index].quantidade_partidas[codigo]
+
+                            duracao = datetime.timedelta(minutes=min)
+                            sec = duracao.seconds
+                            hours = sec // 3600
+                            minutes = (sec // 60) - (hours * 60)
+                            duracao = str(hours) + ':' + str(minutes)
+
+                            new_row = {'semana': ofs[i].data.isocalendar()[1],
+                                       'Máquina': maquinas[grupos[index].id_alocada].nome,
+                                       'OF': ofs[i].cod_of,
+                                       'Início': datetime.now() + datetime.timedelta(minutes=grupos[index].data_inicio),
+                                       'Duração': duracao, 'Quantidade': quantidade,
+                                       'Descrição Material': ofs[i].descricao_material,'grupo':index}
+
+                            planeado.append(new_row)
+
+
+
+
+    df = pd.DataFrame(por_planear)
+    df.to_csv('data/12. impossiveis.csv')
+
+    df = pd.DataFrame(planeado)
+    df.to_csv('data/13. output final.csv')
+
 
 
 
