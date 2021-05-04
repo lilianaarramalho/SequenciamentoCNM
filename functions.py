@@ -427,7 +427,7 @@ def data_min():
 
     global df_bruto
 
-    df = pd.read_csv('data/10. stock mes.csv', sep=";", encoding="UTF-8")
+    df = pd.read_csv('data/10. stock mes.csv', sep=",", encoding="UTF-8")
     df = first_row_as_headers(df)
     df = df.dropna()
     df['dia'] = df['Lot'].str[4:6]
@@ -511,14 +511,16 @@ def import_ovs():
     data_min()
     global df_bruto
 
-    df_ofs=pd.read_csv('data/08. ofs.csv',encoding='UTF-8',sep=";")
+    header_list = ["Name", "Dept", "Start Date"]
+    df_ofs=pd.read_csv('data/08. ofs.csv',encoding='UTF-8',sep=',',header=0)
     df_ofs=df_ofs.fillna(0)
+    df_ofs.columns
     df_ofs['Ordem'] = df_ofs['Ordem'].astype(int)
     df_ofs['Qtd.teórica']=df_ofs['Qtd.teórica'].astype(float)
 
     # verificar cliente final - Assumimos CCS quando não tem OV.
 
-    df_ovs = pd.read_csv('data/09. cliente_final.csv', encoding='UTF-8', sep=";")
+    df_ovs = pd.read_csv('data/09. cliente_final.csv', encoding='UTF-8', sep=",")
     df_ovs = df_ovs[['Ordem', 'Planeador', 'Ordem Venda / Transf', 'Componente']]
     df_mto=df_ovs.copy()
     df_mto=df_mto[['Ordem Venda / Transf','Planeador']]
@@ -530,6 +532,8 @@ def import_ovs():
     df_ofs['Planeador']=df_ofs['Planeador'].fillna('CCS')
     df_ofs.loc[(df_ofs.Planeador != 'CCS'),'Planeador']='Ext'
     df_ofs=df_ofs.drop_duplicates(['Ordem'], keep="first")
+    df_ofs_toremove=df_ofs[(df_ofs['Semana']<datetime.datetime.now().isocalendar()[1]-2) & (df_ofs['Centro trabalho']=='CNMRETBL')]
+    df_ofs=pd.concat([df_ofs, df_ofs_toremove, df_ofs_toremove]).drop_duplicates(keep=False)
 
     # filtrar centros de trabalho
 
@@ -538,7 +542,7 @@ def import_ovs():
 
     #para ver as que já foram concluídas e quantidade declarada
 
-    df_cubo=pd.read_csv('data/07. cubo mes.csv',encoding='UTF-8',sep=";")
+    df_cubo=pd.read_csv('data/07. cubo mes.csv',encoding='UTF-8',sep=",")
     df_cubo = df_cubo.iloc[3:]
     new_header = df_cubo.iloc[0]
     df_cubo = df_cubo[1:]
@@ -615,8 +619,6 @@ def import_ofs():
 
     for index,row in df_ofs.iterrows():
 
-
-
         #id, cod_of,minutos,quantidade,codigo_material,descricao_material,material,bl,acabamento,ct,prioridade,estado,quantidade_precedencia, codigo_precedencia,descricao_precedencia,data,outsider,dim1,dim2,precedenciaBL)
         cod_of=row['Ordem']
         minutos=row['minutos']
@@ -627,7 +629,11 @@ def import_ofs():
         bl=row['dim3']
         acabamento=row['acabamento']
         ct=row['Centro trabalho']
-        prioridade=calcular_prioridade(row['Semana'])
+
+        if ct=='CNMRETBL':
+            prioridade=calcular_prioridade(datetime.datetime.now().isocalendar()[1])
+        else:
+            prioridade=calcular_prioridade(row['Semana'])
         estado=0
         quantidade_precedencia=row['Qtd. componente']
         codigo_precedencia=row['Componente']
@@ -669,7 +675,7 @@ def import_stocks():
     materialkey = []
     stock=[]
 
-    df_stocks = pd.read_csv('data/10. stock mes.csv', sep=";",error_bad_lines=False)
+    df_stocks = pd.read_csv('data/10. stock mes.csv', sep=",",error_bad_lines=False)
     df_stocks=df_stocks.dropna()
     df_stocks= df_stocks.iloc[1:]
     df_stocks = df_stocks.rename(columns={'Sum Quantity': 'MaterialKey', 'Unnamed: 3': 'Total'}, inplace=False)
@@ -1024,15 +1030,21 @@ def calcular_data_fim_maquina(t_start,tempo_teorico, id_maquina):
 
     # Calculo tempo a alocar= setup da máquina + tempo produtivo
     tempo_alocar = tempo_teorico
-    print('tempo a alocar na função: ' + str(tempo_teorico))
-    if tempo_teorico==266.6123908553798:
-        print('debug')
 
     n_slots = len(maq.vetor_slots)-1
     t_finish = t_start
     tempo_em_falta = tempo_alocar
     index = 0
-    # print('MÁQUINA QUE ESTÁ A MERDAR ' + str(id_maquina))
+
+    encontrei=False
+    count=0
+
+    while encontrei==False and count<n_slots:
+        if slots[maquinas[id_maquina].id_slot_inicio_turno[index]].inicio>t_start:
+            encontrei=True
+            index=count
+        count+=1
+
     # Percorrer as várias slots at++e determinar o momento final
 
     while index <= n_slots and tempo_em_falta > 0:
@@ -1096,9 +1108,6 @@ def update_capacidade(remanescente,turno,max_turno,id_maquina):
             remanescente = maquinas[id_maquina].diminuir_capacidade(turno, remanescente)
 
             if maquinas[id_maquina].vetor_capacidade[turno] == 0:
-                print('esgotei o turno' + str(turno))
-                if turno==11:
-                    print('debug')
                 turno += 1
         else:
             turno+=1
@@ -1138,11 +1147,6 @@ def gerar_output_final(method):
 
                     duracao=datetime.timedelta(minutes=min)
                     duracao=str(duracao)
-
-                    #sec = duracao.total_seconds()
-                    #hours = sec // 3600
-                    #minutes = (sec // 60) - (hours * 60)
-                    #duracao=str(hours)+':'+str(minutes)
 
                     if grupos[id_groupby].id_precedencia!=-1:
                         precedencia=grupos[grupos[id_groupby].id_precedencia]
@@ -1192,14 +1196,43 @@ def gerar_output_final(method):
 
                             planeado.append(new_row)
 
-
-
-
     df = pd.DataFrame(por_planear)
     df.to_csv('data/12. impossiveis.csv')
 
     df = pd.DataFrame(planeado)
     df.to_csv('data/13. output final.csv')
+
+def definir_min_maquina(id_maquina,data_fim):
+
+    global maquinas
+
+    maquinas[id_maquina].min_alocada = data_fim
+
+    print(maquinas[id_maquina].min_alocada)
+
+def tornar_of_impossivel(id_of):
+
+    global grupos
+
+    grupos[id_of].id_slot_inicio_turno = 999999
+    grupos[id_of].pronta_a_iniciar = 0
+
+def atualizar_of_datas(id_of,data_inicio,data_fim):
+
+    global grupos
+
+    grupos[id_of].data_inicio=data_inicio
+    grupos[id_of].data_fim=data_fim
+
+def alocar_of(id_grupo,id_maquina,turno):
+
+    global grupos
+
+    grupos[id_grupo].id_alocada = id_maquina
+    grupos[id_grupo].id_slot_inicio_turno = maquinas[id_maquina].id_slot_inicio_turno[turno]
+
+
+
 
 
 

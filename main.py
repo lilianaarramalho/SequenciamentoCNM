@@ -29,6 +29,9 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
         current_of=grupos[id_prontos[0]]
         id_grupo=id_prontos[0]
 
+        if current_of.cod_of==1600068317:
+            print('debug')
+
         min_data_maquina, id_inicio_turno, id_maquina = definir_turno_min(current_of.vetor_maquinas)
 
         min_data_outsider=data_min_outsider(current_of)
@@ -52,44 +55,50 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
 
                     of_prencher=grupos[id_prontos[count]]
 
+                    if of_prencher.cod_of == 1600068317:
+                        print('debug')
+
                     id_preencher = id_prontos[count]
 
                     min_data_maquina_preencher, id_inicio_turno_preencher, id_maquina_preencher = definir_turno_min(of_prencher.vetor_maquinas)
 
                     min_data_outsider_preencher = data_min_outsider(of_prencher)
 
-                    min_data_global_preencher = max(min_data_maquina, of_prencher.data_min, min_data_outsider)
+                    min_data_global_preencher = max(min_data_maquina_preencher, of_prencher.data_min, min_data_outsider_preencher)
 
                     turno_preencher=id_inicio_turno_preencher
 
-                    if min_data_global_preencher < data_in_prioridade:
+                    if math.ceil(min_data_global_preencher) < math.ceil(data_in_prioridade):
 
                         if turno_preencher == -1:
 
                             n_impossivel += 1
 
-                            of_prencher.id_slot_inicio_turno = 999999
-                            of_prencher.pronta_a_iniciar = 0
+                            tornar_of_impossivel(id_preencher)
 
                         else:
 
                             max_turno = len(maquinas[id_maquina_preencher].id_slot_inicio_turno)
                             remanescente_preencher = of_prencher.t_producao / maquinas[id_maquina_preencher].oee
-                            of_prencher.data_inicio = min_data_global_preencher
-                            of_prencher.data_fim = calcular_data_fim_maquina(of_prencher.data_inicio, of_prencher.t_producao,
+
+
+                            data_inicio = min_data_global_preencher
+                            data_fim = calcular_data_fim_maquina(data_inicio, of_prencher.t_producao,
                                                                     id_maquina_preencher)
+
+                            atualizar_of_datas(id_preencher, data_inicio, data_fim)
+
+                            print('current of ' + str(of_prencher.cod_of) + ' começa em: ' + str(of_prencher.data_inicio) + ' acaba em: ' + str(of_prencher.data_fim))
 
                             if of_prencher.data_fim == -1:
                                 n_impossivel += 1
-                                of_prencher.id_slot_inicio_turno = 999999
-                                of_prencher.pronta_a_iniciar = 0
+                                tornar_of_impossivel(id_preencher)
 
                             else:
 
                                 ordens_alocadas+=1
-                                of_prencher.id_alocada = id_maquina_preencher
-                                of_prencher.id_slot_inicio_turno = maquinas[id_maquina_preencher].id_slot_inicio_turno[turno]
-                                maquinas[id_maquina_preencher].min_alocada = of_prencher.data_fim
+                                alocar_of(id_preencher,id_maquina_preencher,turno_preencher)
+                                definir_min_maquina(id_maquina_preencher,of_prencher.data_fim)
                                 update_capacidade(remanescente_preencher, turno_preencher, max_turno, id_maquina_preencher)
                                 data_final=of_prencher.data_inicio
 
@@ -100,31 +109,37 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
         if turno == -1:
 
             n_impossivel += 1
-            current_of.id_slot_inicio_turno = 999999
-            current_of.pronta_a_iniciar = 0
+            tornar_of_impossivel(id_grupo)
 
         else:
 
+            data_inicio=min_data_global
 
-            current_of.data_inicio=min_data_global
-            current_of.data_fim = calcular_data_fim_maquina(current_of.data_inicio,
-                                                    current_of.t_producao / maquinas[id_maquina].oee, id_maquina)
+            data_fim=calcular_data_fim_maquina(data_inicio,current_of.t_producao / maquinas[id_maquina].oee, id_maquina)
+
+            atualizar_of_datas(id_grupo,data_inicio,data_fim)
+
+            print('current of ' + str(current_of.cod_of) + ' começa em: ' + str(
+                current_of.data_inicio) + ' acaba em: ' + str(current_of.data_fim))
+
             if current_of.data_fim==-1:
+
                 n_impossivel += 1
-                current_of.id_slot_inicio_turno = 999999
-                current_of.pronta_a_iniciar = 0
+                tornar_of_impossivel(id_grupo)
+
 
             else:
 
                 ordens_alocadas += 1
-                current_of.id_alocada = id_maquina
-                current_of.id_slot_inicio_turno = maquinas[id_maquina].id_slot_inicio_turno[turno]
-                maquinas[id_maquina].min_alocada = current_of.data_fim
+                alocar_of(id_grupo,id_maquina,turno)
+
+                definir_min_maquina(id_maquina, current_of.data_fim)
                 max_turno = len(maquinas[id_maquina].id_slot_inicio_turno)
                 remanescente = current_of.t_producao / maquinas[id_maquina].oee
                 update_capacidade(remanescente, turno, max_turno,id_maquina)
 
             for id_of in range(len(current_of.id_sucedencias)):
+
                 update_delta(current_of.id_sucedencias[id_of], id_grupo)
 
             sort_delta(id_grupos,grupos)
