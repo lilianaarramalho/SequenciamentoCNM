@@ -39,6 +39,8 @@ class of(object):
         self.id_of=[]
         self.quantidade_of=[]
 
+        self.descricao=[]
+
     def __repr__(self):
         return str(self.cod_of)
 

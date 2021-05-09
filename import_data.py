@@ -20,7 +20,5 @@ ofs=import_ofs()
 
 materialkey,stock=import_stocks()
 
-
-
 #todo adicionar setups
 
