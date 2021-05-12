@@ -4,25 +4,13 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\__init__.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.six',
+  ('pkg_resources._vendor.packaging.version',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\six.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\version.py',
    'PYMODULE'),
-  ('struct',
+  ('pkg_resources._vendor.packaging.tags',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\struct.py',
-   'PYMODULE'),
-  ('pkg_resources._vendor.packaging.requirements',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\requirements.py',
-   'PYMODULE'),
-  ('string',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\string.py',
-   'PYMODULE'),
-  ('pkg_resources._vendor.appdirs',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\appdirs.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\tags.py',
    'PYMODULE'),
   ('ctypes',
    'c:\\users\\jacinta '
@@ -32,25 +20,185 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\ctypes\\_endian.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging.utils',
+  ('struct',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\utils.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\struct.py',
    'PYMODULE'),
-  ('pkg_resources._vendor',
+  ('distutils.util',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\__init__.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\util.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging.__about__',
+  ('distutils.filelist',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\__about__.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\filelist.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.pyparsing',
+  ('distutils.debug',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\pyparsing.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\debug.py',
    'PYMODULE'),
-  ('uuid',
+  ('fnmatch',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\uuid.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\fnmatch.py',
+   'PYMODULE'),
+  ('distutils.file_util',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\file_util.py',
+   'PYMODULE'),
+  ('distutils.dir_util',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\dir_util.py',
+   'PYMODULE'),
+  ('py_compile',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\py_compile.py',
+   'PYMODULE'),
+  ('importlib._bootstrap_external',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE'),
+  ('importlib.metadata',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\metadata.py',
+   'PYMODULE'),
+  ('importlib.abc',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\abc.py',
+   'PYMODULE'),
+  ('typing',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\typing.py',
+   'PYMODULE'),
+  ('importlib._bootstrap',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\_bootstrap.py',
+   'PYMODULE'),
+  ('contextlib',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\contextlib.py',
+   'PYMODULE'),
+  ('configparser',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\configparser.py',
+   'PYMODULE'),
+  ('pathlib',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pathlib.py',
+   'PYMODULE'),
+  ('urllib.parse',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\urllib\\parse.py',
+   'PYMODULE'),
+  ('urllib',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\urllib\\__init__.py',
+   'PYMODULE'),
+  ('email',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\__init__.py',
+   'PYMODULE'),
+  ('email._header_value_parser',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_header_value_parser.py',
+   'PYMODULE'),
+  ('email.utils',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\utils.py',
+   'PYMODULE'),
+  ('email._parseaddr',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_parseaddr.py',
+   'PYMODULE'),
+  ('calendar',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\calendar.py',
+   'PYMODULE'),
+  ('argparse',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\argparse.py',
+   'PYMODULE'),
+  ('shutil',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\shutil.py',
+   'PYMODULE'),
+  ('tarfile',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\tarfile.py',
+   'PYMODULE'),
+  ('gzip',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\gzip.py',
+   'PYMODULE'),
+  ('_compression',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_compression.py',
+   'PYMODULE'),
+  ('lzma',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\lzma.py',
+   'PYMODULE'),
+  ('bz2',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\bz2.py',
+   'PYMODULE'),
+  ('threading',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\threading.py',
+   'PYMODULE'),
+  ('_threading_local',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_threading_local.py',
+   'PYMODULE'),
+  ('copy',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\copy.py',
+   'PYMODULE'),
+  ('gettext',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\gettext.py',
+   'PYMODULE'),
+  ('datetime',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\datetime.py',
+   'PYMODULE'),
+  ('_strptime',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_strptime.py',
+   'PYMODULE'),
+  ('socket',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\socket.py',
+   'PYMODULE'),
+  ('selectors',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\selectors.py',
+   'PYMODULE'),
+  ('random',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\random.py',
+   'PYMODULE'),
+  ('statistics',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\statistics.py',
+   'PYMODULE'),
+  ('decimal',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\decimal.py',
+   'PYMODULE'),
+  ('_pydecimal',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_pydecimal.py',
+   'PYMODULE'),
+  ('contextvars',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\contextvars.py',
+   'PYMODULE'),
+  ('fractions',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\fractions.py',
+   'PYMODULE'),
+  ('numbers',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\numbers.py',
    'PYMODULE'),
   ('hashlib',
    'c:\\users\\jacinta '
@@ -64,17 +212,13 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pickle.py',
    'PYMODULE'),
+  ('pprint',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pprint.py',
+   'PYMODULE'),
   ('doctest',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\doctest.py',
-   'PYMODULE'),
-  ('argparse',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\argparse.py',
-   'PYMODULE'),
-  ('gettext',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\gettext.py',
    'PYMODULE'),
   ('unittest',
    'c:\\users\\jacinta '
@@ -100,10 +244,6 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\signal.py',
    'PYMODULE'),
-  ('selectors',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\selectors.py',
-   'PYMODULE'),
   ('asyncio.windows_events',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\asyncio\\windows_events.py',
@@ -119,10 +259,6 @@
   ('ssl',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\ssl.py',
-   'PYMODULE'),
-  ('calendar',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\calendar.py',
    'PYMODULE'),
   ('base64',
    'c:\\users\\jacinta '
@@ -143,10 +279,6 @@
   ('asyncio.threads',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\asyncio\\threads.py',
-   'PYMODULE'),
-  ('contextvars',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\contextvars.py',
    'PYMODULE'),
   ('asyncio.subprocess',
    'c:\\users\\jacinta '
@@ -200,10 +332,6 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\multiprocessing\\heap.py',
    'PYMODULE'),
-  ('bisect',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\bisect.py',
-   'PYMODULE'),
   ('multiprocessing.resource_tracker',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\multiprocessing\\resource_tracker.py',
@@ -215,118 +343,6 @@
   ('runpy',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\runpy.py',
-   'PYMODULE'),
-  ('importlib.util',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\util.py',
-   'PYMODULE'),
-  ('contextlib',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\contextlib.py',
-   'PYMODULE'),
-  ('importlib._bootstrap_external',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\_bootstrap_external.py',
-   'PYMODULE'),
-  ('importlib.metadata',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\metadata.py',
-   'PYMODULE'),
-  ('configparser',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\configparser.py',
-   'PYMODULE'),
-  ('pathlib',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pathlib.py',
-   'PYMODULE'),
-  ('urllib.parse',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\urllib\\parse.py',
-   'PYMODULE'),
-  ('urllib',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\urllib\\__init__.py',
-   'PYMODULE'),
-  ('fnmatch',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\fnmatch.py',
-   'PYMODULE'),
-  ('email',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\__init__.py',
-   'PYMODULE'),
-  ('email._header_value_parser',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_header_value_parser.py',
-   'PYMODULE'),
-  ('email.utils',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\utils.py',
-   'PYMODULE'),
-  ('email._parseaddr',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_parseaddr.py',
-   'PYMODULE'),
-  ('email._encoded_words',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_encoded_words.py',
-   'PYMODULE'),
-  ('email.header',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\header.py',
-   'PYMODULE'),
-  ('email.base64mime',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\base64mime.py',
-   'PYMODULE'),
-  ('email.quoprimime',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\quoprimime.py',
-   'PYMODULE'),
-  ('email.charset',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\charset.py',
-   'PYMODULE'),
-  ('email.encoders',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\encoders.py',
-   'PYMODULE'),
-  ('quopri',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\quopri.py',
-   'PYMODULE'),
-  ('email.errors',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\errors.py',
-   'PYMODULE'),
-  ('csv',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\csv.py',
-   'PYMODULE'),
-  ('tokenize',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\tokenize.py',
-   'PYMODULE'),
-  ('token',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\token.py',
-   'PYMODULE'),
-  ('importlib._bootstrap',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\_bootstrap.py',
-   'PYMODULE'),
-  ('importlib.abc',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\abc.py',
-   'PYMODULE'),
-  ('typing',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\typing.py',
-   'PYMODULE'),
-  ('importlib',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\__init__.py',
    'PYMODULE'),
   ('multiprocessing.process',
    'c:\\users\\jacinta '
@@ -411,14 +427,6 @@
   ('xmlrpc',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\xmlrpc\\__init__.py',
-   'PYMODULE'),
-  ('gzip',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\gzip.py',
-   'PYMODULE'),
-  ('_compression',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_compression.py',
    'PYMODULE'),
   ('xml.parsers.expat',
    'c:\\users\\jacinta '
@@ -516,6 +524,10 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\contentmanager.py',
    'PYMODULE'),
+  ('email.quoprimime',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\quoprimime.py',
+   'PYMODULE'),
   ('email.headerregistry',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\headerregistry.py',
@@ -532,6 +544,10 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_policybase.py',
    'PYMODULE'),
+  ('quopri',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\quopri.py',
+   'PYMODULE'),
   ('uu',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\uu.py',
@@ -539,18 +555,6 @@
   ('optparse',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\optparse.py',
-   'PYMODULE'),
-  ('decimal',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\decimal.py',
-   'PYMODULE'),
-  ('_pydecimal',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_pydecimal.py',
-   'PYMODULE'),
-  ('numbers',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\numbers.py',
    'PYMODULE'),
   ('multiprocessing',
    'c:\\users\\jacinta '
@@ -656,50 +660,6 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\unittest\\util.py',
    'PYMODULE'),
-  ('difflib',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\difflib.py',
-   'PYMODULE'),
-  ('_compat_pickle',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_compat_pickle.py',
-   'PYMODULE'),
-  ('random',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\random.py',
-   'PYMODULE'),
-  ('statistics',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\statistics.py',
-   'PYMODULE'),
-  ('fractions',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\fractions.py',
-   'PYMODULE'),
-  ('socket',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\socket.py',
-   'PYMODULE'),
-  ('subprocess',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\subprocess.py',
-   'PYMODULE'),
-  ('shutil',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\shutil.py',
-   'PYMODULE'),
-  ('tarfile',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\tarfile.py',
-   'PYMODULE'),
-  ('lzma',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\lzma.py',
-   'PYMODULE'),
-  ('bz2',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\bz2.py',
-   'PYMODULE'),
   ('pdb',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pdb.py',
@@ -768,57 +728,61 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\cmd.py',
    'PYMODULE'),
-  ('threading',
+  ('difflib',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\threading.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\difflib.py',
    'PYMODULE'),
-  ('_threading_local',
+  ('_compat_pickle',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_threading_local.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_compat_pickle.py',
    'PYMODULE'),
-  ('datetime',
+  ('bisect',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\datetime.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\bisect.py',
    'PYMODULE'),
-  ('_strptime',
+  ('email._encoded_words',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_strptime.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\_encoded_words.py',
    'PYMODULE'),
-  ('pprint',
+  ('email.header',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\pprint.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\header.py',
    'PYMODULE'),
-  ('copy',
+  ('email.base64mime',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\copy.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\base64mime.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging.tags',
+  ('email.charset',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\tags.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\charset.py',
    'PYMODULE'),
-  ('distutils.util',
+  ('email.encoders',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\util.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\encoders.py',
    'PYMODULE'),
-  ('distutils.filelist',
+  ('email.errors',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\filelist.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\email\\errors.py',
    'PYMODULE'),
-  ('distutils.debug',
+  ('csv',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\debug.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\csv.py',
    'PYMODULE'),
-  ('distutils.file_util',
+  ('importlib',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\file_util.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\__init__.py',
    'PYMODULE'),
-  ('distutils.dir_util',
+  ('tokenize',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\dir_util.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\tokenize.py',
    'PYMODULE'),
-  ('py_compile',
+  ('token',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\py_compile.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\token.py',
+   'PYMODULE'),
+  ('subprocess',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\subprocess.py',
    'PYMODULE'),
   ('distutils.sysconfig',
    'c:\\users\\jacinta '
@@ -872,29 +836,65 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\distutils\\errors.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging.specifiers',
+  ('string',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\specifiers.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\string.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging._structures',
+  ('importlib.util',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_structures.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\importlib\\util.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging',
+  ('pkg_resources._vendor.six',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\__init__.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\six.py',
    'PYMODULE'),
   ('pkg_resources._vendor.packaging.markers',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\markers.py',
    'PYMODULE'),
-  ('pkg_resources._vendor.packaging.version',
+  ('pkg_resources._vendor.packaging.utils',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\version.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\utils.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.packaging._structures',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_structures.py',
    'PYMODULE'),
   ('pkg_resources._vendor.packaging._compat',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_compat.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\__init__.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.packaging.__about__',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\__about__.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.packaging.specifiers',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.packaging.requirements',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.packaging',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.appdirs',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\appdirs.py',
+   'PYMODULE'),
+  ('pkg_resources._vendor.pyparsing',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\pkg_resources\\_vendor\\pyparsing.py',
+   'PYMODULE'),
+  ('uuid',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\uuid.py',
    'PYMODULE'),
   ('sysconfig',
    'c:\\users\\jacinta '
@@ -980,13 +980,13 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\__future__.py',
    'PYMODULE'),
-  ('stringprep',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\stringprep.py',
-   'PYMODULE'),
   ('_py_abc',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\_py_abc.py',
+   'PYMODULE'),
+  ('stringprep',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\stringprep.py',
    'PYMODULE'),
   ('tracemalloc',
    'c:\\users\\jacinta '
@@ -1160,37 +1160,13 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\__init__.py',
    'PYMODULE'),
-  ('setuptools._vendor.packaging.specifiers',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
-   'PYMODULE'),
-  ('setuptools._vendor.packaging',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
-   'PYMODULE'),
-  ('setuptools._vendor.packaging._structures',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
-   'PYMODULE'),
-  ('setuptools._vendor.packaging.tags',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
-   'PYMODULE'),
-  ('setuptools._vendor.packaging.markers',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
-   'PYMODULE'),
-  ('setuptools._vendor.packaging.requirements',
-   'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
-   'PYMODULE'),
   ('setuptools._vendor.ordered_set',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\ordered_set.py',
    'PYMODULE'),
-  ('setuptools._vendor.packaging.version',
+  ('setuptools._vendor.packaging.markers',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.utils',
    'c:\\users\\jacinta '
@@ -1200,21 +1176,45 @@
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\pyparsing.py',
    'PYMODULE'),
-  ('setuptools._vendor',
+  ('setuptools._vendor.packaging.specifiers',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\__init__.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
    'PYMODULE'),
-  ('setuptools._vendor.six',
+  ('setuptools._vendor.packaging._compat',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\six.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\_compat.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.__about__',
    'c:\\users\\jacinta '
    'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\__about__.py',
    'PYMODULE'),
-  ('setuptools._vendor.packaging._compat',
+  ('setuptools._vendor.packaging._structures',
    'c:\\users\\jacinta '
-   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\_compat.py',
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.tags',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.version',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.requirements',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('setuptools._vendor.six',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\six.py',
+   'PYMODULE'),
+  ('setuptools._vendor',
+   'c:\\users\\jacinta '
+   'rebelo\\appdata\\local\\programs\\python\\python39\\lib\\site-packages\\setuptools\\_vendor\\__init__.py',
    'PYMODULE'),
   ('setuptools.msvc',
    'c:\\users\\jacinta '

@@ -3,6 +3,8 @@ from functions import *
 from import_data import *
 global grupos
 
+
+atualizar_ct_outsiders()
 id_ofs=get_ids(ofs)
 sort_delta(id_ofs,ofs)
 grupos=criar_total_grupos(id_ofs)
@@ -10,12 +12,25 @@ n_impossivel=verificar_precedencias(grupos)
 id_grupos=get_ids(grupos)
 sort_delta(id_grupos,grupos)
 
-
 ordens_alocadas=0
 
 limpar_grupos()
 
+limpar_sem_blocos()
+
+atualizar_quantidade_retificadora()
+
 maquinas_descricoes=[]
+
+ofs_lidas=[]
+
+for index in range(len(ofs)):
+    new_of={'of':ofs[index].cod_of,'descricao':ofs[index].descricao_material,'quantidade':ofs[index].quantidade,'quantidade precedencia':ofs[index].quantidade_precedencia,'centro de trabalho': ofs[index].ct, 'n.º maquinas': len(ofs[index].vetor_maquinas)}
+    ofs_lidas.append(new_of)
+
+df = pd.DataFrame(ofs_lidas)
+df.to_csv('data/16. ofs lidas.csv')
+
 
 while ordens_alocadas+n_impossivel<len(id_grupos):
 
@@ -32,7 +47,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
         current_of=grupos[id_prontos[0]]
         id_grupo=id_prontos[0]
 
-        if current_of.cod_of==1600052554:
+        if current_of.ct=="CNMLAMLXOUT":
             print('debug')
 
         if id_grupo==122:
@@ -58,9 +73,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
             pos=maquinas_descricoes.index(current_of.descricao)
             maquinas_descricoes[pos]=id_maquina
 
-        min_data_outsider=data_min_outsider(current_of)
-
-        min_data_global=max(min_data_maquina,current_of.data_min,min_data_outsider)
+        min_data_global=max(min_data_maquina,current_of.data_min)
 
         if min_data_global-min_data_maquina>=60:
 
@@ -81,7 +94,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
 
                 id_pending=id_prontos[count]
 
-                if grupos[id_pending].cod_of == 1600052554:
+                if grupos[id_pending].cod_of == 1600055219:
                     print('debug')
 
                 if id_pending==104:
@@ -95,9 +108,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
 
                     min_data_maquina_preencher, id_inicio_turno_preencher, id_maquina_preencher = definir_turno_min(of_prencher.vetor_maquinas)
 
-                    min_data_outsider_preencher = data_min_outsider(of_prencher)
-
-                    min_data_global_preencher = max(min_data_maquina_preencher, of_prencher.data_min, min_data_outsider_preencher)
+                    min_data_global_preencher = max(min_data_maquina_preencher, of_prencher.data_min)
 
                     turno_preencher=id_inicio_turno_preencher
 

@@ -293,6 +293,8 @@ def import_slots():
     df_semanal = pd.melt(df_semanal, id_vars=['MAQUINA'], var_name='TURNO', value_name='VALUE')
     df_semanal['TURNO'] = df_semanal['TURNO'].astype(int)
 
+    df_semanal=df_semanal[df_semanal['VALUE']!=0]
+
     df_semanal = df_semanal.append(adicionar_semana(df_semanal))
 
     df_semanal['hora inicio']=df_semanal.apply(lambda row:calcular_hora_inicio(row),axis=1)
@@ -302,6 +304,7 @@ def import_slots():
     df_semanal['hora fim'] = pd.to_datetime(df_semanal['hora fim'], format='%H:%M:%S', errors='coerce').dt.time
 
     df_semanal['data inicio']=df_semanal.apply(lambda row: calcular_data_inicio(row),axis=1)
+
 
     df_paragens=pd.read_csv('data/05. paragens diarias.csv',sep=',',encoding= 'unicode_escape')
     df_paragens['Hora Inicio']=pd.to_datetime(df_paragens['Hora Inicio'],format='%H:%M',errors='coerce').dt.time
@@ -487,7 +490,7 @@ def calcular_data_bruto(row):
         df_bruto['Total'] = df_bruto.apply(lambda x: x['Total']-quantidade if x['MaterialKey'] == componente else x['Total'], axis=1)
         return data
     elif df_componente.empty==True and df_data.empty==False:
-        data=datetime.datetime.now()+datetime.timedelta(days=7)
+        data=datetime.datetime.now()+datetime.timedelta(days=30)
         return data
     else:
         return datetime.datetime.now()
@@ -516,24 +519,30 @@ def import_ovs():
 
     header_list = ["Name", "Dept", "Start Date"]
     df_ofs=pd.read_csv('data/08. ofs.csv',encoding='ISO-8859-1',sep=',',header=0)
+    df_mts_cnm=pd.read_csv('data/17. materiais mts cnm.csv',encoding='ISO-8859-1',sep=",")
     df_ofs=df_ofs.fillna(0)
     df_ofs.columns
     df_ofs['Ordem'] = df_ofs['Ordem'].astype(int)
+    df_ofs['Material']=df_ofs['Material'].astype(float)
+    df_mts_cnm['MATERIAL KEY'] = df_mts_cnm['MATERIAL KEY'].astype(float)
     df_ofs['Qtd.teórica']=df_ofs['Qtd.teórica'].astype(float)
 
     # verificar cliente final - Assumimos CCS quando não tem OV.
 
     df_ovs = pd.read_csv('data/09. cliente_final.csv', encoding='ISO-8859-1', sep=",")
-    df_ovs = df_ovs[['Ordem', 'Planeador', 'Ordem Venda / Transf', 'Componente']]
+    df_ovs = df_ovs[['Ordem', 'Planeador', 'Ordem Venda / Transf', 'Componente','Item OV/Transf']]
     df_mto=df_ovs.copy()
-    df_mto=df_mto[['Ordem Venda / Transf','Planeador']]
+    df_mto=df_mto[['Ordem Venda / Transf','Planeador','Item OV / Transf']]
     df_mto=df_mto.dropna()
     df_mto=df_mto.drop_duplicates()
     df_mto=df_mto.sort_values(by='Planeador')
+    df_mto['key']==df_mto['Ordem Venda / Transf','Planeador']&df_mto['Item OV/Transf']
     df_ofs=df_ofs.merge(df_mto,left_on="Ordem Venda / Transf",right_on="Ordem Venda / Transf",how='left')
+    df_ofs=df_ofs.merge(df_mts_cnm,left_on="Material",right_on="MATERIAL KEY",how="left")
     df_ofs=df_ofs.sort_values(by='Ordem Venda / Transf')
-    df_ofs['Planeador']=df_ofs['Planeador'].fillna('CCS')
-    df_ofs.loc[(df_ofs.Planeador != 'CCS'),'Planeador']='Ext'
+    df_ofs.Planeador_x.fillna(df_ofs.Planeador_y, inplace=True)
+    df_ofs['Planeador_x']=df_ofs['Planeador_x'].fillna('CCS')
+    df_ofs=df_ofs.rename(columns={"Planeador_x": "Planeador"})
     df_ofs=df_ofs.drop_duplicates(['Ordem'], keep="first")
     df_ofs_toremove=df_ofs[(df_ofs['Semana']<datetime.datetime.now().isocalendar()[1]-2) & (df_ofs['Centro trabalho']=='CNMRETBL')]
     df_ofs=pd.concat([df_ofs, df_ofs_toremove, df_ofs_toremove]).drop_duplicates(keep=False)
@@ -638,7 +647,7 @@ def import_ofs():
         else:
             prioridade=calcular_prioridade(row['Semana'])
         estado=0
-        quantidade_precedencia=row['Qtd. componente']
+        quantidade_precedencia=row['quantidade precedencia']
         codigo_precedencia=row['Componente']
         descricao_precedencia=row['Denominação componente']
         data=row['Semana']
@@ -774,15 +783,27 @@ def criar_grupo(id,quantidade,descricao):
 
 def get_match_ids(lista,match):
     result = []
-    for i, x in enumerate(lista):
-        if x==match:
-            result.append(i)
+    global grupos
+    for index in range(len(grupos)):
+        if grupos[index].descricao==match:
+            result.append(index)
     return result
+
+def get_match_descricao(descricao,new_descricao):
+    result = []
+    for index in range(len(descricao)):
+        if descricao[index]==new_descricao:
+            result.append(index)
+    return result
+
 
 def update_grupo(id,quantidade,id_grupo):
 
     global grupos
     global ofs
+
+    if id_grupo>68 and id_grupo<73:
+        print('debug')
 
     grupos[id_grupo].quantidade+=quantidade
     grupos[id_grupo].t_producao+=quantidade/ofs[id].quantidade*ofs[id].t_producao
@@ -853,7 +874,12 @@ def group_material_dim(ids,ct):
     for index in range(len(ids_ct)):
 
         id=ids_ct[index]
-        new_descricao=str(ofs[id].material) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
+        if ofs[id].cod_of==1600055219:
+            print('debug')
+
+        if id==33:
+            print('debug')
+        new_descricao=str(ofs[id].ct) + " " + str(ofs[id].material) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
         if 'P050' in new_descricao:
             print('debug')
         blocos=math.ceil(ofs[id].quantidade_precedencia)
@@ -861,20 +887,21 @@ def group_material_dim(ids,ct):
         quantidade_of=ofs[id].quantidade
 
         if new_descricao in descricao:
-            ids_grupos=get_match_ids(descricao,new_descricao)
+            ids_grupos=get_match_ids(grupos,new_descricao)
+            ids_descricoes=get_match_descricao(descricao,new_descricao)
             count=0
             while blocos>0 and count<len(ids_grupos):
                 id_grupo=ids_grupos[count]
-                quantidade_utilizada=quantidade[id_grupo]
+                quantidade_utilizada=quantidade[ids_descricoes]
                 if quantidade_utilizada+blocos<=limite:
                     update_grupo(id,quantidade_of,id_grupo)
-                    quantidade[id_grupo] += blocos
+                    quantidade[ids_descricoes] += blocos
                     blocos=0
                 elif quantidade_utilizada<limite:
                     restante=limite-quantidade_utilizada
                     restante_of=restante/math.ceil(ofs[id].quantidade_precedencia)*ofs[id].quantidade
                     update_grupo(id, restante_of,id_grupo)
-                    quantidade[id_grupo] += restante
+                    quantidade[ids_descricoes] += restante
                     blocos=blocos-restante
                 count+=1
             if blocos>0:
@@ -908,7 +935,9 @@ def group_dim(ids,ct):
 
     for index in range(len(ids_ct)):
         id=ids_ct[index]
-        new_descricao=str(ofs[id].dim1) + " " + str(ofs[id].dim2)
+        if ofs[id].cod_of==1600055219:
+            print('debug')
+        new_descricao=str(ofs[id].ct) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
         blocos=math.ceil(ofs[id].quantidade_precedencia)
         limite=20
         t_producao=ofs[id].t_producao
@@ -916,7 +945,7 @@ def group_dim(ids,ct):
 
         if new_descricao in descricao:
 
-            ids_grupos=get_match_ids(descricao,new_descricao)
+            ids_grupos=get_match_ids(grupos,new_descricao)
             count=0
 
             while blocos>0 and count<len(ids_grupos):
@@ -956,6 +985,8 @@ def group_material(ids,ct):
 
     for index in range(len(ids_ct)):
         id = ids_ct[index]
+        if ofs[id].cod_of==1600055219:
+            print('debug')
         new_descricao = str(ofs[id].material)
         blocos = math.ceil(ofs[id].quantidade_precedencia)
         limite = get_limite(ofs[id].precedenciaBL)
@@ -976,6 +1007,7 @@ def criar_total_grupos(id_ofs):
     grupos=[]
     group_material_dim(id_ofs, "CNMLAMPL")
     group_material_dim(id_ofs, "CNMLAMLX")
+    group_material_dim(id_ofs, "CNMLAMLXOUT")
     group_material(id_ofs, "CNMSERPL")
     group_material(id_ofs, "CNMRETBL")
 
@@ -991,7 +1023,7 @@ def verificar_precedencias(vetor):
     for id in range(len(vetor)):
         of=vetor[id].cod_of
 
-        if id==34:
+        if vetor[id].ct=='CNMLAMLXOUT':
             print('debug')
 
         for index in range(len(vetor[id].id_of)):
@@ -1031,7 +1063,7 @@ def verificar_precedencias(vetor):
                         vetor[id].pronta_a_iniciar = 0
                         n_impossivel += 1
 
-            elif "/000" in descricao_precedencia:
+            elif "/000" in descricao_precedencia and descricao_precedencia[:2]=="BL":
                 vetor[id].pronta_a_iniciar = 0
                 n_impossivel+=1
 
@@ -1265,7 +1297,11 @@ def gerar_output_final(method):
                     posicao_grupo=ofs[id_of].id_grupos.index(index)
 
                     min = (ofs[id_of].quantidade_grupos[posicao_grupo] / ofs[id_of].quantidade) * ofs[id_of].t_producao
-                    quantidade = ofs[id_of].quantidade_grupos[posicao_grupo]
+
+                    if ofs[id_of].ct=='CNMRETBL':
+                        quantidade=grupos[index].quantidade
+                    else:
+                        quantidade = ofs[id_of].quantidade_grupos[posicao_grupo]
 
                     duracao = datetime.timedelta(minutes=min)
                     duracao = str(duracao)
@@ -1284,7 +1320,7 @@ def gerar_output_final(method):
                                'Quantidade': quantidade,
                                'Descrição Material': ofs[id_of].descricao_material,
                                'consumo blocos': grupos[index].quantidade_precedencia, 'grupo': index,
-                               'data fim precedencia': fim_precedencia}
+                               'data fim precedencia': fim_precedencia,'quantidade inicial':grupos[index].quantidade_inicial}
 
                     planeado.append(new_row)
 
@@ -1331,11 +1367,61 @@ def limpar_grupos():
 
     for index in range(len(grupos)):
 
-        if grupos[index].ct=='CNMRETBL' and len(grupos[index].id_sucedencias)==0:
+        if (grupos[index].ct=='CNMRETBL' and len(grupos[index].id_sucedencias)==0) or (grupos[index].ct=='CNMSERPL' and len(grupos[index].id_sucedencias)==0):
 
             grupos[index].pronta_a_iniciar=0
 
             grupos[index].id_slot_inicio=-1
+
+def limpar_sem_blocos():
+
+    global grupos
+
+    for index in range(len(grupos)):
+        if grupos[index].data_min>(13*60*24):
+
+            grupos[index].pronta_a_iniciar=0
+
+            grupos[index].id_slot_inicio=-1
+
+def atualizar_ct_outsiders():
+
+    global ofs
+
+    for index in range(len(ofs)):
+        if ofs[index].outsider==1:
+            ofs[index].ct='CNMLAMLXOUT'
+            ofs[index].vetor_maquinas=[]
+            ofs[index].vetor_maquinas.append(9)
+
+def atualizar_quantidade_retificadora():
+
+    global grupos
+
+    for index in range(len(grupos)):
+
+        if grupos[index].ct=='CNMRETBL':
+
+            vetor_sucedencias=grupos[index].id_sucedencias
+            quantidade_necessaria=0
+
+            for pos_prec in range(len(vetor_sucedencias)):
+
+                id_precedencia=vetor_sucedencias[pos_prec]
+
+                quantidade_precedencia=grupos[id_precedencia].quantidade_precedencia
+
+                quantidade_necessaria+=quantidade_precedencia
+
+            if grupos[index].quantidade>quantidade_necessaria and len(vetor_sucedencias)>0:
+                grupos[index].quantidade_inicial=grupos[index].quantidade
+                grupos[index].quantidade=quantidade_necessaria
+                grupos[index].t_producao=grupos[index].quantidade/grupos[index].quantidade_inicial*grupos[index].t_producao
+                grupos[index].quantidade_precedencia = grupos[index].quantidade / grupos[index].quantidade_inicial * grupos[
+                    index].quantidade_precedencia
+
+
+
 
 
 

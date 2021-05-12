@@ -41,6 +41,8 @@ class of(object):
 
         self.descricao=[]
 
+        self.quantidade_inicial=quantidade
+
     def __repr__(self):
         return str(self.cod_of)
 
