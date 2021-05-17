@@ -6,19 +6,34 @@ global grupos
 
 atualizar_ct_outsiders()
 id_ofs=get_ids(ofs)
+
+verificar_em_producao()
+
 sort_delta(id_ofs,ofs)
+
+for index in range(len(ofs)):
+    if ofs[index].estado==1:
+        print(ofs[index].cod_of)
+
 grupos=criar_total_grupos(id_ofs)
+
 n_impossivel=verificar_precedencias(grupos)
 id_grupos=get_ids(grupos)
 sort_delta(id_grupos,grupos)
 
 ordens_alocadas=0
 
+
+
 limpar_grupos()
 
 limpar_sem_blocos()
 
 atualizar_quantidade_retificadora()
+
+alterar_data_min_ret()
+
+sort_delta(id_grupos,grupos)
 
 maquinas_descricoes=[]
 
@@ -31,14 +46,9 @@ for index in range(len(ofs)):
 df = pd.DataFrame(ofs_lidas)
 df.to_csv('data/16. ofs lidas.csv')
 
-
 while ordens_alocadas+n_impossivel<len(id_grupos):
 
     id_prontos = calcular_ofs_prontas(grupos)
-
-    for index in range(len(id_prontos)):
-        id_atual=id_prontos[index]
-        print(grupos[id_atual].ct)
 
     if len(id_prontos) > 0:
 
@@ -48,9 +58,6 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
         id_grupo=id_prontos[0]
 
         if current_of.ct=="CNMLAMLXOUT":
-            print('debug')
-
-        if id_grupo==122:
             print('debug')
 
         min_data_maquina, id_inicio_turno, id_maquina = definir_turno_min(current_of.vetor_maquinas)
@@ -88,17 +95,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
 
             while data_final < data_in_prioridade and count < len(id_prontos):
 
-                print('subocupação de ' + str(min_data_global - data_final))
-                print('data final é ' + str(data_final))
-                print('data inicio é ' + str(data_in_prioridade))
-
                 id_pending=id_prontos[count]
-
-                if grupos[id_pending].cod_of == 1600055219:
-                    print('debug')
-
-                if id_pending==104:
-                    print('debug')
 
                 if grupos[id_prontos[count]].ct==ct:
 
@@ -140,7 +137,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
 
                                 atualizar_of_datas(id_preencher, data_inicio, data_fim)
 
-                                print('current of ' + str(of_prencher.cod_of) + ' começa em: ' + str(of_prencher.data_inicio) + ' acaba em: ' + str(of_prencher.data_fim))
+                                print('current of ' + str(of_prencher.cod_of) + ' começa em: ' + str(of_prencher.data_inicio) + ' acaba em: ' + str(of_prencher.data_fim) + ' no centro de trabalho ' + str(of_prencher.ct))
 
                                 ordens_alocadas+=1
                                 alocar_of(id_preencher,id_maquina_preencher,turno_preencher)
@@ -170,7 +167,7 @@ while ordens_alocadas+n_impossivel<len(id_grupos):
             atualizar_of_datas(id_grupo,data_inicio,data_fim)
 
             print('current of ' + str(current_of.cod_of) + ' começa em: ' + str(
-                current_of.data_inicio) + ' acaba em: ' + str(current_of.data_fim))
+                current_of.data_inicio) + ' acaba em: ' + str(current_of.data_fim) + ' no centro de trabalho ' + str(current_of.ct))
 
             if current_of.data_fim==-1:
 

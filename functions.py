@@ -505,12 +505,21 @@ def atualizar_data(row):
 def calcular_bl(row):
 
     if row['Centro trabalho']=='CNMLAMPL' or row['Centro trabalho']=='CNMLAMLX':
-        if row['dim1']>=1000:
+        if row['dim1']>=str(1000):
             return "metricas"
         else:
             return "inglesas"
     else:
         return "PL"
+
+def atualizar_planeador(row):
+
+    if row['Ordem Venda / Transf_x']!=0 and row['Planeador_x']=='nan':
+        return 'Ext'
+    elif row['Ordem Venda / Transf_x']==0 and row['Planeador_x']=='nan':
+        return "CCS"
+    else:
+        return row['Planeador_x']
 
 def import_ovs():
 
@@ -532,16 +541,19 @@ def import_ovs():
     df_ovs = pd.read_csv('data/09. cliente_final.csv', encoding='ISO-8859-1', sep=",")
     df_ovs = df_ovs[['Ordem', 'Planeador', 'Ordem Venda / Transf', 'Componente','Item OV/Transf']]
     df_mto=df_ovs.copy()
-    df_mto=df_mto[['Ordem Venda / Transf','Planeador','Item OV / Transf']]
+    df_mto=df_mto[['Ordem Venda / Transf','Planeador','Item OV/Transf']]
     df_mto=df_mto.dropna()
     df_mto=df_mto.drop_duplicates()
     df_mto=df_mto.sort_values(by='Planeador')
-    df_mto['key']==df_mto['Ordem Venda / Transf','Planeador']&df_mto['Item OV/Transf']
-    df_ofs=df_ofs.merge(df_mto,left_on="Ordem Venda / Transf",right_on="Ordem Venda / Transf",how='left')
+    df_mto['key_ordem']=df_mto['Ordem Venda / Transf']+df_mto['Item OV/Transf']
+    df_ofs['key_ordem']=df_ofs['Ordem Venda / Transf']+df_ofs['Item OV/Transf']
+    df_ofs=df_ofs.merge(df_mto,on="key_ordem",how='left')
     df_ofs=df_ofs.merge(df_mts_cnm,left_on="Material",right_on="MATERIAL KEY",how="left")
-    df_ofs=df_ofs.sort_values(by='Ordem Venda / Transf')
+    df_ofs=df_ofs.sort_values(by='Ordem Venda / Transf_x')
     df_ofs.Planeador_x.fillna(df_ofs.Planeador_y, inplace=True)
-    df_ofs['Planeador_x']=df_ofs['Planeador_x'].fillna('CCS')
+    df_ofs['Planeador_x']=df_ofs['Planeador_x'].astype(str)
+    df_ofs['Planeador']=df_ofs.apply(lambda row: atualizar_planeador(row),axis=1)
+    #df_ofs['Planeador_x']=df_ofs['Planeador_x'].fillna('CCS')
     df_ofs=df_ofs.rename(columns={"Planeador_x": "Planeador"})
     df_ofs=df_ofs.drop_duplicates(['Ordem'], keep="first")
     df_ofs_toremove=df_ofs[(df_ofs['Semana']<datetime.datetime.now().isocalendar()[1]-2) & (df_ofs['Centro trabalho']=='CNMRETBL')]
@@ -555,7 +567,7 @@ def import_ovs():
     #para ver as que já foram concluídas e quantidade declarada
 
     df_cubo=pd.read_csv('data/07. cubo mes.csv',encoding='ISO-8859-1',sep=",")
-    df_cubo = df_cubo.iloc[3:]
+    df_cubo = df_cubo.iloc[2:]
     new_header = df_cubo.iloc[0]
     df_cubo = df_cubo[1:]
     df_cubo.columns = new_header
@@ -601,7 +613,6 @@ def import_ovs():
     df_ofs['dim1']=df_ofs['Denominação'].str.split('X').str[0]
     df_ofs['dim1']=df_ofs['dim1'].str.split('/').str[1]
     df_ofs['dim1'] = df_ofs['dim1'].str[4:]
-    df_ofs['dim1']=df_ofs['dim1'].astype(int)
 
     df_ofs['dim2']=df_ofs['Denominação'].str.split('X').str[1]
     df_ofs['dim2']=df_ofs['dim2'].str.split(' ').str[0]
@@ -627,7 +638,6 @@ def import_ofs():
 
     df_ofs=import_ovs()
     df_acabamentos=importar_acabamentos()
-
 
     for index,row in df_ofs.iterrows():
 
@@ -723,8 +733,8 @@ def get_ids(lista):
 
 def sort_delta(ids,vetor):
 
-    ids.sort(key=lambda x: (vetor[x].estado,vetor[x].delta,vetor[x].descricao_material,vetor[x].acabamento,vetor[x].quantidade,vetor[x].ct), reverse=False)
-    ids.sort(key=lambda x: (vetor[x].ct), reverse=True)
+    #ids.sort(key=lambda x: (vetor[x].estado,vetor[x].delta,vetor[x].descricao_material,vetor[x].acabamento,vetor[x].quantidade), reverse=False)
+    ids.sort(key=lambda x: (-vetor[x].delta,vetor[x].ct,vetor[x].estado,vetor[x].dim1,vetor[x].dim2), reverse=True)
 
     return ids
 
@@ -744,9 +754,11 @@ def criar_grupo(id,quantidade,descricao):
     global grupos
     global ofs
 
-
-
     cod_of = ofs[id].cod_of
+
+    if cod_of==1600074377:
+        print('debug')
+
     minutos = quantidade/ofs[id].quantidade*ofs[id].t_producao
     codigo_material = ofs[id].codigo_material
     descricao_material = ofs[id].descricao_material
@@ -755,7 +767,7 @@ def criar_grupo(id,quantidade,descricao):
     acabamento = ofs[id].acabamento
     ct = ofs[id].ct
     prioridade = ofs[id].prioridade
-    estado = 0
+    estado = ofs[id].estado
     quantidade_precedencia = math.ceil(quantidade/ofs[id].quantidade*ofs[id].quantidade_precedencia)
     codigo_precedencia = ofs[id].codigo_precedencia
     descricao_precedencia = ofs[id].descricao_precedencia
@@ -781,6 +793,7 @@ def criar_grupo(id,quantidade,descricao):
     for index in range(len(ofs[id].id_sucedencias)):
         new_grupo.id_sucedencias.append(ofs[id].id_sucedencias[index])
 
+
 def get_match_ids(lista,match):
     result = []
     global grupos
@@ -802,7 +815,7 @@ def update_grupo(id,quantidade,id_grupo):
     global grupos
     global ofs
 
-    if id_grupo>68 and id_grupo<73:
+    if ofs[id].cod_of==1600074377:
         print('debug')
 
     grupos[id_grupo].quantidade+=quantidade
@@ -826,6 +839,9 @@ def update_grupo(id,quantidade,id_grupo):
     if ofs[id].data_min>grupos[id_grupo].data_min:
         grupos[id_grupo].data_min=ofs[id].data_min
 
+    if ofs[id].estado==1:
+        grupos[id_grupo].estado=1
+
     for index in range(len(ofs[id].id_sucedencias)):
         grupos[id_grupo].append(ofs[id].id_sucedencias[index])
 
@@ -838,9 +854,12 @@ def alocar_lista_de_grupos(id_of, quantidade_of, blocos, limite,new_descricao):
     quantidade=[]
 
     n_ofs = blocos // limite
-    quantidade_grupo = quantidade_of * limite / blocos
-    blocos_remanescentes = blocos - n_ofs * limite
-    quantidade_remanescente = quantidade_of * blocos_remanescentes / blocos
+    if blocos!=0:
+        quantidade_grupo = quantidade_of * limite / blocos
+        blocos_remanescentes = blocos - n_ofs * limite
+        quantidade_remanescente = quantidade_of * blocos_remanescentes / blocos
+    else:
+        quantidade_remanescente=0
 
     for i in range(n_ofs):
         criar_grupo(id_of, quantidade_grupo,new_descricao)
@@ -874,14 +893,10 @@ def group_material_dim(ids,ct):
     for index in range(len(ids_ct)):
 
         id=ids_ct[index]
-        if ofs[id].cod_of==1600055219:
-            print('debug')
 
-        if id==33:
-            print('debug')
+
         new_descricao=str(ofs[id].ct) + " " + str(ofs[id].material) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
-        if 'P050' in new_descricao:
-            print('debug')
+
         blocos=math.ceil(ofs[id].quantidade_precedencia)
         limite=get_limite(ofs[id].precedenciaBL)
         quantidade_of=ofs[id].quantidade
@@ -935,8 +950,7 @@ def group_dim(ids,ct):
 
     for index in range(len(ids_ct)):
         id=ids_ct[index]
-        if ofs[id].cod_of==1600055219:
-            print('debug')
+
         new_descricao=str(ofs[id].ct) + " " + str(ofs[id].dim1) + " " + str(ofs[id].dim2)
         blocos=math.ceil(ofs[id].quantidade_precedencia)
         limite=20
@@ -985,8 +999,7 @@ def group_material(ids,ct):
 
     for index in range(len(ids_ct)):
         id = ids_ct[index]
-        if ofs[id].cod_of==1600055219:
-            print('debug')
+
         new_descricao = str(ofs[id].material)
         blocos = math.ceil(ofs[id].quantidade_precedencia)
         limite = get_limite(ofs[id].precedenciaBL)
@@ -1023,13 +1036,11 @@ def verificar_precedencias(vetor):
     for id in range(len(vetor)):
         of=vetor[id].cod_of
 
-        if vetor[id].ct=='CNMLAMLXOUT':
-            print('debug')
+
 
         for index in range(len(vetor[id].id_of)):
             index_of=vetor[id].id_of[index]
-            if ofs[index_of].cod_of==1600057531:
-                print('debug')
+
 
         if vetor[id].id_precedencia==-1:
             codigo_precedencia=vetor[id].codigo_precedencia
@@ -1265,7 +1276,8 @@ def gerar_output_final(method):
 
                     new_row = {'semana':ofs[index].data,'Máquina': maquinas[grupos[id_groupby].id_alocada].nome,'OF': ofs[index].cod_of,
                                'Início': datetime.datetime.now() + datetime.timedelta(minutes=grupos[id_groupby].data_inicio),'Duração':duracao,'Quantidade': quantidade,
-                               'Descrição Material': ofs[index].descricao_material,'consumo blocos':grupos[id_groupby].quantidade_precedencia,'grupo':id_groupby,'data fim precedencia':fim_precedencia}
+                               'Descrição Material': ofs[index].descricao_material,'consumo blocos':grupos[id_groupby].quantidade_precedencia,'grupo':id_groupby,'data fim precedencia':fim_precedencia,
+                               'estado':ofs[index].estado}
 
                     planeado.append(new_row)
     else:
@@ -1274,15 +1286,11 @@ def gerar_output_final(method):
 
             id_grupo=grupos[index].id
 
-            if id_grupo==110:
-                print('debug')
+
 
             for codigo in range(len(grupos[index].id_of)):
 
                 id_of=grupos[index].id_of[codigo]
-
-                if ofs[id_of].cod_of==1600061549:
-                    print('debug')
 
                 if grupos[index].id_slot_inicio_turno == -1:
 
@@ -1320,7 +1328,8 @@ def gerar_output_final(method):
                                'Quantidade': quantidade,
                                'Descrição Material': ofs[id_of].descricao_material,
                                'consumo blocos': grupos[index].quantidade_precedencia, 'grupo': index,
-                               'data fim precedencia': fim_precedencia,'quantidade inicial':grupos[index].quantidade_inicial}
+                               'data fim precedencia': fim_precedencia,'quantidade inicial':grupos[index].quantidade_inicial,
+                               'estado':grupos[index].estado}
 
                     planeado.append(new_row)
 
@@ -1419,6 +1428,266 @@ def atualizar_quantidade_retificadora():
                 grupos[index].t_producao=grupos[index].quantidade/grupos[index].quantidade_inicial*grupos[index].t_producao
                 grupos[index].quantidade_precedencia = grupos[index].quantidade / grupos[index].quantidade_inicial * grupos[
                     index].quantidade_precedencia
+
+def alterar_data_min_ret():
+
+    #alterar a data minima das ofs da retificadora para que sejam colocadas no mesmo sitio que as outras da mesma dimensao
+
+    global grupos
+    global id_grupos
+
+    id_grupos_ret=[]
+    dim1_dim2=[]
+    data_min=[]
+    prioridade=[]
+    ids_mesma_dim=[[]]
+
+    for index in range(len(grupos)):
+
+        id_grupo=grupos[index].id
+
+        if grupos[index].ct=='CNMRETBL' and grupos[index].pronta_a_iniciar==1:
+
+            id_grupos_ret.append(id_grupo)
+
+    for index in range(len(id_grupos_ret)):
+
+        id_grupo=grupos[id_grupos_ret[index]].id
+
+        dimensoes=str(grupos[id_grupo].dim1) + str(grupos[id_grupo].dim2)
+
+        if dimensoes in dim1_dim2:
+
+            posicao = dim1_dim2.index(dimensoes)
+
+            ids_mesma_dim[posicao].append(id_grupo)
+
+            if data_min[posicao]<grupos[id_grupo].data_min:
+                data_min[posicao]=grupos[id_grupo].data_min
+
+            if prioridade[posicao]>grupos[id_grupo].delta:
+                prioridade[posicao]=grupos[id_grupo].delta
+
+
+        else:
+
+            dim1_dim2.insert(0,dimensoes)
+            data_min.insert(0,grupos[id_grupo].data_min)
+            prioridade.insert(0,grupos[id_grupo].delta)
+            #ids_mesma_dim.append([grupos[id_grupo].id])
+            ids_mesma_dim.insert(0,[grupos[id_grupo].id])
+
+    for id in range(len(dim1_dim2)):
+
+        ids=ids_mesma_dim[id]
+
+        for pos in range(len(ids)):
+
+            id_grupo_atualizar = ids[pos]
+
+            grupos[id_grupo_atualizar].data_min = data_min[id]
+
+            grupos[id_grupo_atualizar].delta = prioridade[id]
+
+
+def verificar_em_producao():
+
+    df_producao=pd.read_csv('data/18. ofs em producao.csv',sep=",",encoding='iso-8859-1')
+
+    df_producao=df_producao[3:]
+
+    df_producao=first_row_as_headers(df_producao)
+
+    df_producao['AreaSapWorkCenter']=df_producao['AreaSapWorkCenter'].ffill()
+
+    df_producao=df_producao[df_producao['OrderName'].notnull()]
+    df_producao['OrderName'] = df_producao['OrderName'].str.split('.').str[1]
+    df_producao['OrderName']=df_producao['OrderName'].astype(int)
+
+    df_producao['TransactionDateTime']=pd.to_datetime(df_producao['TransactionDateTime'],format='%m/%d/%Y %H:%M:%S %p')
+    centro_de_trabalho = df_producao['AreaSapWorkCenter'].tolist()
+    data_declaracao = df_producao['TransactionDateTime'].tolist()
+    maquina = df_producao['SystemAltName'].tolist()
+    of = df_producao['OrderName'].tolist()
+
+    df_hora_maquina=df_producao.groupby(['SystemAltName'], sort=False)['TransactionDateTime'].max()
+    df_hora_maquina=df_hora_maquina.reset_index()
+
+    'Retificadora'
+    nome='Retificadora'
+    split=df_hora_maquina[df_hora_maquina['SystemAltName']==nome].TransactionDateTime.tolist()
+    hora=split[0]
+
+    codigo_alterar=-1
+
+    for pos_of in range(len(of)):
+        cod_of=of[pos_of]
+        if data_declaracao[pos_of]==hora and maquina[pos_of]==nome:
+            codigo_alterar=cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of==codigo_alterar:
+            ofs[index].estado=1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Serra'
+    nome = 'Serra'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Lam01'
+    nome = 'Laminadora 1'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Lam03'
+    nome = 'Laminadora 3'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Lam07'
+    nome = 'Laminadora 7'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Lam08'
+    nome = 'Laminadora 8'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia=0
+            break
+
+    'Lam12'
+    nome = 'Laminadora 12'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia = 0
+            break
+
+    'Lam13'
+    nome = 'Laminadora 13'
+    split = df_hora_maquina[df_hora_maquina['SystemAltName'] == nome].TransactionDateTime.tolist()
+    hora = split[0]
+
+    codigo_alterar = -1
+
+    for pos_of in range(len(of)):
+        cod_of = of[pos_of]
+        if data_declaracao[pos_of] == hora and maquina[pos_of] == nome:
+            codigo_alterar = cod_of
+            break
+
+    for index in range(len(ofs)):
+        if ofs[index].cod_of == codigo_alterar:
+            ofs[index].estado = 1
+            ofs[index].quantidade_precedencia = 0
+            break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

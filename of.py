@@ -29,8 +29,8 @@ class of(object):
         self.descricao_precedencia=descricao_precedencia
         self.data=data
         self.precedenciaBL=precedenciaBL
-        self.dim1=dim1
-        self.dim2=dim2
+        self.dim1=dim1.strip()
+        self.dim2=dim2.strip()
         self.outsider=outsider
 
         self.id_grupos=[]
@@ -42,6 +42,9 @@ class of(object):
         self.descricao=[]
 
         self.quantidade_inicial=quantidade
+
+        self.semana_real=self.data
+        self.data_min_real=self.data_min
 
     def __repr__(self):
         return str(self.cod_of)
